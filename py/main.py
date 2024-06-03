@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Jun  3 22:30:16 2024
 
-@author: Utente
-"""
+import numpy as np
+import matplotlib.pyplot as plt
 
-print("Hello World!")
+from tsp import generate_cities
+
+# %% first try
+
+mat1 = generate_cities(5)
+
+plt.scatter(mat1[:,0], mat1[:,1])
+plt.show()
+
+
