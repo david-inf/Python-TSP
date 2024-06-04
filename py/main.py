@@ -3,24 +3,49 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from tsp import generate_cities, circle_cities, create_city
+from tsp import tsp_fun, generate_cities, circle_cities, create_city, random_seq, adjacency
+from utils import diagnostic, plot_path
+from solvers import relax
 
 # %% first try
 
-D1, C1 = generate_cities(5)
+# TODO: try with turtle
+
+n1 = 9
+
+# D1, C1 = generate_cities(n1)
+D1, C1, _ = circle_cities(n1)
 cities1 = create_city(C1)
 
-plt.scatter(C1[:,0], C1[:,1])
-plt.show()
+seq1 = random_seq(n1, seed=43)
+# seq2 = random_seq(n1, seed=43)
+# seq3 = random_seq(n1, [3, 2])
 
-# %% second try
+adj1 = adjacency(seq1)
+# adj2 = adjacency(seq2)
 
-D2, C2, C2pol = circle_cities(50)
+dist1 = tsp_fun(D1, adj1)
+# dist2 = tsp_fun(D1, adj2)
 
-plt.scatter(C2[:,0], C2[:,1])
-plt.xlim((-6,6))
-plt.ylim((-6,6))
-plt.show()
+# %%% try the algorithm
 
-plt.polar(C2pol[:,0], C2pol[:,1])
-plt.show()
+res1 = relax(seq1, D1, "swap", 1000)
+
+res2 = relax(seq1, D1, "swap-rev", 1000)
+
+# %%% diagnose the solution
+
+## plot initial guess
+plot_path(C1, seq1)
+
+# tsp_fun(D1, adjacency(np.arange(n1)))
+
+## plot solution and objective function performance
+diagnostic(C1, res1.x, res1.fun_seq)
+diagnostic(C1, res2.x, res2.fun_seq)
+
+print(res1)
+print("% ---- %")
+print(res2)
+
+
