@@ -3,11 +3,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from tsp import generate_cities, circle_cities
+from tsp import generate_cities, circle_cities, create_city
 
 # %% first try
 
 D1, C1 = generate_cities(5)
+cities1 = create_city(C1)
 
 plt.scatter(C1[:,0], C1[:,1])
 plt.show()

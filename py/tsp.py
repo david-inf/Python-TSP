@@ -4,6 +4,47 @@ import numpy as np
 import numpy.linalg as la
 
 
+class City(object):
+    def __init__(self, x, y, name="City"):
+        self.x = x
+        self.y = y
+        self.name = name
+
+    def set_xy(self, newx, newy):
+        self.x = newx
+        self.y = newy
+
+        return self
+
+    def get_xy(self):
+        return self.x, self.y
+
+    def get_polar(self):
+        theta = np.arctan(self.y / self.x)
+        rho = np.sqrt(self.x**2 + self.y**2)
+
+        return theta, rho
+
+    def __str__(self):
+        return f"{self.name} @ ({self.x}, {self.y})"
+
+
+def create_city(coords):
+
+    cities = []
+    for i in range(coords.shape[0]):
+        cities.append(City(coords[i, 0], coords[i, 1], "City" + str(i)))
+
+    return cities
+
+
+def random_seq(ncity, seed=42):
+
+    rng = np.random.default_rng(seed)
+
+    return rng.permutation(ncity)
+
+
 def generate_cities(ncity, l=10, seed=42):
 
     rng = np.random.default_rng(seed)
