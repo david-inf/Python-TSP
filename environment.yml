@@ -1,0 +1,12 @@
+name: C:\Users\Utente\Documents\Python Projects\StatsPhys\env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - ipython
+  - jupyterlab
+  - matplotlib
+  - numpy
+  - spyder
+  - scipy
+prefix: C:\Users\Utente\Documents\Python Projects\StatsPhys\env
