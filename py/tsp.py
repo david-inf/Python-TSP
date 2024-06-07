@@ -80,8 +80,11 @@ def generate_cities(ncity, l=10, seed=42):
     rng = np.random.default_rng(seed)
 
     # cities coordinates c_i=(x,y)
-    # C = rng.integers(0, l, ncity * 2).reshape((-1, 2))
-    C = rng.uniform(0, l, ncity * 2).reshape((-1, 2))
+    # C = rng.uniform(0, l, ncity * 2).reshape((-1, 2))
+
+    C = np.empty((ncity, 2))
+    C[:,0] = rng.uniform(0, l, ncity)  # x-coordinate
+    C[:,1] = rng.uniform(0, l, ncity)  # y-coordinate
 
     # empty distance matrix D=(d_ij)
     D = np.empty((ncity, ncity))
@@ -103,6 +106,7 @@ def circle_cities(ncity, r=5):
     Cpol = np.zeros((ncity, 2))
     Cpol[0,:] = np.array([0, r])  # first city
 
+    # assign position to city
     for i in range(ncity-1):
         Cpol[i+1,:] = np.array([Cpol[i,0] + theta, r])
 

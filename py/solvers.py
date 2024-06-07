@@ -3,6 +3,7 @@
 import time
 import numpy as np
 from scipy.optimize import OptimizeResult
+from itertools import permutations
 
 from tsp import tsp_fun
 from solvers_utils import stopping, rand_idx
@@ -66,6 +67,40 @@ def relax(seq0, D, solver="swap", maxiter=100, random_state=42):
 
     result = OptimizeResult(fun=fk, x=seqk, nit=k, solver=solver,
                             runtime=time_seq[k], fun_seq=f_seq)
+
+    return result
+
+
+def brute_force(seq0, D):
+    # not sustainable for high seq0.size
+    # seq0: assumed [0,...,0] array_like
+
+    # ncity = seq0.size - 1  # number of cities in the path
+    # f_seq = np.empty(maxiter + 1)  # objective function sequence
+    # time_seq = np.zeros_like(f_seq)  # runtime for each iteration
+
+    best_seq = seq0.copy()  # starting solution, assume City0 in seq0[0]
+    best_f = tsp_fun(seq0, D)  # starting objective function
+
+    # f_seq[0] = fk
+    # time_seq[0] = 0.
+    _start = time.time()
+    # warnflag = 0
+
+    # consider parallelization
+    for partial_seq in permutations(seq0[1:-1]):
+
+        seqt = seq0.copy()
+        seqt[1:-1] = np.array(partial_seq)
+
+        ft = tsp_fun(seqt, D)
+
+        if ft < best_f:
+            best_f = ft
+            best_seq = seqt
+
+    result = OptimizeResult(fun=best_f, x=best_seq, solver="brute-foce",
+                            runtime=time.time() - _start)
 
     return result
 

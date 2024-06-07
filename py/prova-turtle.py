@@ -77,7 +77,7 @@ def draw_path(seq, cities, col="black"):
 
 if __name__ == '__main__':
 
-    ncities = 10
+    ncities = 25
 
     # create random coordinates
     # _, C = generate_cities(ncities)
@@ -103,11 +103,12 @@ if __name__ == '__main__':
     res = relax(rand_seq, D, "swap-rev", 1000)
     print(res)
 
-    t.clear()  # for removing previous path until online update
+    # t.clear()  # for removing previous path until online update
 
+    t.pensize(5)
     draw_map(res.x, cities)
     # draw_path(rand_seq, cities, "red")
-    draw_path(res.x, cities)
+    draw_path(res.x, cities, "red")
     # diagnostic(C, res.x, res.fun_seq)
 
     turtle.done()

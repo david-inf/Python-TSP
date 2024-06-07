@@ -4,16 +4,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from tsp import tsp_fun, generate_cities, circle_cities, create_city, random_seq, adjacency
-from utils import diagnostic, plot_path
-from solvers import relax
+from utils import diagnostic, plot_points
+from solvers import relax, brute_force
 
-# %% first try
+# %% circle cities
 
 # TODO: try with turtle
 
-n1 = 15
+n1 = 10
 
-# D1, C1 = generate_cities(n1)
 D1, C1, _ = circle_cities(n1)
 cities1 = create_city(C1)
 
@@ -33,20 +32,56 @@ res1 = relax(seq1, D1, "swap", 1000)
 
 res2 = relax(seq1, D1, "swap-rev", 1000)
 
+res3 = brute_force(seq1, D1)
+
 # %%% diagnose the solution
 
 ## plot initial guess
-plot_path(C1, seq1)
+plot_points(C1, seq1)
 
 # tsp_fun(D1, adjacency(np.arange(n1)))
 
 ## plot solution and objective function performance
-diagnostic(C1, res1.x, res1.fun_seq)
-diagnostic(C1, res2.x, res2.fun_seq)
+diagnostic(C1, res1)
+diagnostic(C1, res2)
+diagnostic(C1, res2)
 
 print(res1)
 print("% ---- %")
 print(res2)
+print("% ---- %")
+print(res3)
+
+# %% random cities
+
+n_city = 25
+
+D_city, C_city = generate_cities(n_city)
+
+seq_city = random_seq(n_city)
+
+# %%% solve random cities problem
+
+res1_city = relax(seq_city, D_city, "swap", 1000)
+
+res2_city = relax(seq_city, D_city, "swap-rev", 1000)
+
+# %%% diagnose random cities solution
+
+## plot initial guess
+plot_points(C_city, seq_city)
+
+# tsp_fun(D1, adjacency(np.arange(n1)))
+
+## plot solution and objective function performance
+diagnostic(C_city, res1_city)
+diagnostic(C_city, res2_city)
+
+print(f"Init cost: {tsp_fun(seq_city, D_city):.2f}")
+print("% ---- %")
+print(res1_city)
+print("% ---- %")
+print(res2_city)
 
 
 # %% es. schoen
@@ -70,7 +105,7 @@ res_schoen2 = relax(seq_schoen, D_schoen, "swap-rev", 1000)
 
 # %%% plot schoen
 
-plot_path(C_schoen, seq_schoen)
+plot_points(C_schoen, seq_schoen)
 
 diagnostic(C_schoen, res_schoen.x, res_schoen.fun_seq)
 diagnostic(C_schoen, res_schoen2.x, res_schoen2.fun_seq)
