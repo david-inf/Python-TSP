@@ -2,7 +2,7 @@
 
 import turtle
 
-from tsp import generate_cities, random_seq, create_city, circle_cities
+from tsp import tsp_fun, generate_cities, random_seq, create_city, circle_cities
 from solvers import relax
 from utils import diagnostic
 
@@ -41,7 +41,7 @@ def draw_map(seq, cities):
 
     start = cities[seq[0]]  # starting city
     end = cities[seq[-1]]  # ending sity
-    other = cities[1:-1]  # middle cities
+    # other = cities[1:-1]  # middle cities
 
     for city in cities:
         draw_city(city.x, city.y, city.name)
@@ -76,29 +76,35 @@ def draw_path(seq, cities, col="black"):
 
 
 if __name__ == '__main__':
+
     ncities = 10
+
     # create random coordinates
     # _, C = generate_cities(ncities)
     D, C, _ = circle_cities(ncities)
+
     # create City object for each coordinate
     # returns a list of City
     cities = create_city(C)
 
     ### create a random cities sequence
-    rand_seq = random_seq(ncities, [0, ncities-1])
-    # print(f"Start with: {cities[rand_seq[0]]}")
-    # print(f"End with: {cities[rand_seq[-1]]}")
-    # print(f"Sequence: {rand_seq}")
+    rand_seq = random_seq(ncities)
+    print(f"Starting city: {cities[rand_seq[0]]}")
+    print(f"Init sequence: {rand_seq}")
+    print(f"Init cost: {tsp_fun(rand_seq, D):.2f}")
 
-    # # draw cities in the map
+    # draw cities in the map
     draw_map(rand_seq, cities)
-    # # draw path between cities
+    # draw path between cities
     draw_path(rand_seq, cities)
 
     ### solve the TSP
-    res = relax(rand_seq, D)
+    # TODO: online path update
+    res = relax(rand_seq, D, "swap-rev", 1000)
     print(res)
-    t.clear()
+
+    t.clear()  # for removing previous path until online update
+
     draw_map(res.x, cities)
     # draw_path(rand_seq, cities, "red")
     draw_path(res.x, cities)
