@@ -11,16 +11,13 @@ def plot_path(coords, seq):
     y_seq = coords[seq, 1]
 
     # sequence colors indicating starting and end points
-    colors = ["red"] + ["blue"] * (len(seq) - 2) + ["green"]
+    colors = ["red"] + ["blue"] * (len(seq) - 1)
 
     fig, ax = plt.subplots()
 
     ax.plot(x_seq, y_seq)
     ax.scatter(x_seq, y_seq, marker="o", color=colors)
 
-    # add city index
-    # for i in seq:
-        # ax.text(coords[i,0], coords[i,1], f"{i}")
     for i in range(coords.shape[0]):
         ax.text(coords[i,0], coords[i,1], f"{i}")
 
@@ -42,21 +39,21 @@ def plot_fun(ax, fun_seq):
     ax.set_ylabel(r"$f$")
 
 
-def plot_points(ax, coords, seq):
+def plot_points(coords, seq, ax=None):
 
     # coordinates according to given sequence
     x_seq = coords[seq, 0]
     y_seq = coords[seq, 1]
 
     # sequence colors indicating starting and end points
-    colors = ["red"] + ["blue"] * (len(seq) - 2) + ["green"]
+    colors = ["blue"] * (len(seq) - 1) + ["red"]
+
+    if ax is None:
+        fig, ax = plt.subplots()
 
     ax.plot(x_seq, y_seq)
     ax.scatter(x_seq, y_seq, marker="o", color=colors)
 
-    # add city index
-    # for i in seq:
-        # ax.text(coords[i,0], coords[i,1], f"{i}")
     for i in range(coords.shape[0]):
         ax.text(coords[i,0], coords[i,1], f"{i}")
 
@@ -70,10 +67,8 @@ def diagnostic(coords, seq, fun_seq):
 
     fig, axs = plt.subplots(1, 2, layout="constrained")
 
-    for i, ax in enumerate(axs.flat):
-        if i == 0:
-            # plot graph
-            plot_points(ax, coords, seq)
-        else:
-            # plot function performance
-            plot_fun(ax, fun_seq)
+    # plot graph
+    plot_points(coords, seq, axs[0])
+    # plot function performance
+    plot_fun(axs[1], fun_seq)
+            

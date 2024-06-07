@@ -4,13 +4,64 @@ import numpy as np
 import numpy.linalg as la
 
 
-def tsp_fun(D, A):
+def tsp_fun(seq, D):
+    # seq: cities sequence
+    # D: distance matrix
 
-    return np.sum(np.multiply(A, D))
+    # compute adjacency matrix
+    A = adjacency(seq)
+
+    # with possible nan values
+    # due to np.Inf for unavailable edges
+    cost_matrix_nan = np.multiply(A, D)
+    cost_matrix = np.nan_to_num(cost_matrix_nan)
+
+    return np.sum(cost_matrix)
+
+
+def adjacency(seq):
+    # seq: index sequence of cities
+    # seq = [0,...,0]
+
+    # number of cities in sequence
+    ncity = seq.size - 1
+
+    # compute incidence matrix
+    A = np.zeros((ncity, ncity))
+    for i in range(ncity):
+        # get subsequent cities
+        from_city = seq[i]  # starting city
+        to_city = seq[i+1]  # ending city
+        A[from_city, to_city] = 1
+
+    return A
+
+
+def random_seq(ncity, seed=42):
+    # ncity: number of cities to generate
+    # generate a sequence that starts from a city indexed with 0
+    # and ends in a random one
+
+    # set random numbers generator
+    rng = np.random.default_rng(seed)
+
+    # initialize sequence with 0 as starting and ending city
+    seq = np.zeros(ncity + 1, dtype=np.int32)
+
+    # random middle cities sequence
+    middle = rng.permutation(np.arange(1, ncity))
+
+    # create the final sequence
+    seq[1:ncity] = middle
+
+    # seq: order in which each city is visited
+    # seq = [0,...,0]
+    return seq
 
 
 def create_city(coords):
     # coords: coordinates matrix Nx2
+    # from City0 to CityN
 
     ncity = coords.shape[0]
 
@@ -22,48 +73,9 @@ def create_city(coords):
     return cities
 
 
-def adjacency(seq):
-    # seq: index sequence of cities
-
-    # number of cities in sequence
-    ncity = len(seq)
-
-    # compute incidence matrix
-    A = np.zeros((ncity, ncity))
-    for i in range(ncity-1):
-        A[seq[i], seq[i+1]] = 1
-
-    return A
-
-
-def random_seq(ncity, lim=None, seed=42):
-    # ncity: number of cities to generate
-    # lim: start-end of path, 0 to last if not provided
-    # otherwise list of two indices [start, end]
-    # generate a sequence that starts from a city indexed with 0
-    # and ends in a random one
-
-    # set random numbers generator
-    rng = np.random.default_rng(seed)
-
-    # seq = None
-
-    if lim is None:
-        lim = [0, ncity-1]
-        other = np.delete(np.arange(ncity), lim)
-        # random permutation
-        seq = np.concatenate((np.array([lim[0]]), rng.permutation(other), np.array([lim[-1]])))
-    else:
-        # remove start and end cities
-        other = np.delete(np.arange(ncity), lim)
-        # permute the other indices
-        seq = np.concatenate((np.array([lim[0]]), rng.permutation(other), np.array([lim[-1]])))
-
-    # seq: order in which each city is visited
-    return seq
-
-
 def generate_cities(ncity, l=10, seed=42):
+    # generate random coordinates
+    # ncity: total number of cities
 
     rng = np.random.default_rng(seed)
 
