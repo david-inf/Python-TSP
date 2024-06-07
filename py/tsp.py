@@ -40,11 +40,13 @@ def random_seq(ncity, lim=None, seed=42):
     # ncity: number of cities to generate
     # lim: start-end of path, 0 to last if not provided
     # otherwise list of two indices [start, end]
+    # generate a sequence that starts from a city indexed with 0
+    # and ends in a random one
 
     # set random numbers generator
     rng = np.random.default_rng(seed)
 
-    seq = None
+    # seq = None
 
     if lim is None:
         lim = [0, ncity-1]
@@ -108,7 +110,7 @@ def circle_cities(ncity, r=5):
     return D, Ccart, Cpol
 
 
-class City(object):
+class City:
     def __init__(self, x, y, name="City"):
         self.x = x
         self.y = y
