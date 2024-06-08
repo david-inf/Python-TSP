@@ -4,8 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from tsp import tsp_fun, generate_cities, circle_cities, create_city, random_seq, adjacency
-from utils import diagnostic, plot_points
+from utils import diagnostic, plot_points, plot_fun
 from solvers import relax, brute_force
+
 
 # %% circle cities
 
@@ -28,11 +29,9 @@ dist1 = tsp_fun(seq1, D1)
 
 # %%% try the algorithm
 
-res1 = relax(seq1, D1, "swap", 1000)
-
-res2 = relax(seq1, D1, "swap-rev", 1000)
-
-res3 = brute_force(seq1, D1)
+res1 = relax(D1, seq1, "swap", 1000)
+res2 = relax(D1, seq1, "swap-rev", 1000)
+res3 = brute_force(D1, seq1)
 
 # %%% diagnose the solution
 
@@ -52,18 +51,16 @@ print(res2)
 print("% ---- %")
 print(res3)
 
+
 # %% random cities
 
 n_city = 25
-
 D_city, C_city = generate_cities(n_city)
-
 seq_city = random_seq(n_city)
 
 # %%% solve random cities problem
 
 res1_city = relax(seq_city, D_city, "swap", 1000)
-
 res2_city = relax(seq_city, D_city, "swap-rev", 1000)
 
 # %%% diagnose random cities solution
@@ -100,14 +97,38 @@ C_schoen = np.array([[0,2],[2,3],[4,2],[1,0],[3,0]])
 
 # %%% solve schoen
 
-res_schoen = relax(seq_schoen, D_schoen, "swap", 1000)
-res_schoen2 = relax(seq_schoen, D_schoen, "swap-rev", 1000)
+res_schoen = relax(D_schoen, seq_schoen, "swap", 1000)
+res_schoen2 = relax(D_schoen, seq_schoen, "swap-rev", 1000)
+res_schoen3 = brute_force(D_schoen, seq_schoen)
 
 # %%% plot schoen
 
 plot_points(C_schoen, seq_schoen)
 
-diagnostic(C_schoen, res_schoen.x, res_schoen.fun_seq)
-diagnostic(C_schoen, res_schoen2.x, res_schoen2.fun_seq)
+diagnostic(C_schoen, res_schoen)
+diagnostic(C_schoen, res_schoen2)
+
+
+# %% another es
+
+D_es = np.array([
+    [0,  5, 4, 10],
+    [5,  0, 8,  5],
+    [4,  8, 0,  3],
+    [10, 5, 3,  0]
+])
+
+# %%% solve
+
+res1_es = relax(D_es)
+res2_es = relax(D_es, solver="swap-rev")
+res3_es = brute_force(D_es)
+
+# %%% diagnose
+
+plot_fun(res1_es.fun_seq)
+plot_fun(res2_es.fun_seq)
+
+
 
 

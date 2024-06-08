@@ -60,6 +60,7 @@ def random_seq(ncity, seed=42):
 
 
 def create_city(coords):
+    # create a list of City objects that represent the TSP nodes
     # coords: coordinates matrix Nx2
     # from City0 to CityN
 
@@ -83,8 +84,8 @@ def generate_cities(ncity, l=10, seed=42):
     # C = rng.uniform(0, l, ncity * 2).reshape((-1, 2))
 
     C = np.empty((ncity, 2))
-    C[:,0] = rng.uniform(0, l, ncity)  # x-coordinate
-    C[:,1] = rng.uniform(0, l, ncity)  # y-coordinate
+    C[:,0] = rng.uniform(-l//2, l//2, ncity)  # x-coordinate
+    C[:,1] = rng.uniform(-l//2, l//2, ncity)  # y-coordinate
 
     # empty distance matrix D=(d_ij)
     D = np.empty((ncity, ncity))

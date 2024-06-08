@@ -4,7 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_fun(ax, fun_seq):
+def plot_fun(fun_seq, ax=None):
+    # fun_seq: array_like
+
+    if ax is None:
+        fig, ax = plt.subplots()
 
     iterations = np.arange(1, fun_seq.size + 1)
     ax.plot(iterations, fun_seq)
@@ -49,6 +53,7 @@ def plot_points(coords, seq, ax=None):
 
 
 def diagnostic(coords, opt_res):
+    # plot cities map a objective function performance
     # coords: coordinates matrix
     # opt_res: OptimizeResult
 
@@ -57,5 +62,5 @@ def diagnostic(coords, opt_res):
     # plot graph
     plot_points(coords, opt_res.x, axs[0])
     # plot function performance
-    plot_fun(axs[1], opt_res.fun_seq)
+    plot_fun(opt_res.fun_seq, axs[1])
             

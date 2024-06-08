@@ -72,7 +72,9 @@ def draw_path(seq, cities, col="black"):
         t.goto(current.x, current.y)
 
     # return to first city
-    # t.goto(start.x, start.y)
+    t.penup()
+    t.goto(start.x, start.y)
+    t.pendown()
 
 
 if __name__ == '__main__':
@@ -99,7 +101,7 @@ if __name__ == '__main__':
     draw_path(rand_seq, cities)
 
     ### solve the TSP
-    # TODO: online path update
+    # TODO: online path update, draw each sequence
     res = relax(rand_seq, D, "swap-rev", 1000)
     print(res)
 

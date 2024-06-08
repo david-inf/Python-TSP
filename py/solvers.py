@@ -6,15 +6,24 @@ from scipy.optimize import OptimizeResult
 from itertools import permutations
 
 from tsp import tsp_fun
-from solvers_utils import stopping, rand_idx
+from solvers_utils import rand_city_idx, rand_init_guess
 
 
-def relax(seq0, D, solver="swap", maxiter=100, random_state=42):
+solvers_list = ["swap", "swap-rev", "brute-force"]
+
+
+def relax(D, seq0=None, solver="swap", maxiter=100, random_state=42):
     # seq0: assumed [0,...,0]
 
-    ncity = seq0.size - 1  # number of cities in the path
+    ncity = D.shape[0]  # number of cities in the path
     f_seq = np.empty(maxiter + 1)  # objective function sequence
     time_seq = np.zeros_like(f_seq)  # runtime for each iteration
+
+    _rng = np.random.default_rng(random_state)  # generation seed
+
+    if seq0 is None:
+        # generate random hamiltonian cycle [0,...,0]
+        seq0 = rand_init_guess(ncity, _rng)
 
     seqk = seq0.copy()  # starting solution, assume City0 in seq0[0]
     fk = tsp_fun(seq0, D)  # starting objective function
@@ -24,10 +33,9 @@ def relax(seq0, D, solver="swap", maxiter=100, random_state=42):
     _start = time.time()
     # warnflag = 0
 
-    _rng = np.random.default_rng(random_state)  # generation seed
     k = 0
 
-    while stopping(maxiter, k):
+    while k < maxiter:
 
         seqt = seqk.copy()  # attempt guess
 
@@ -35,7 +43,7 @@ def relax(seq0, D, solver="swap", maxiter=100, random_state=42):
         ##### swap heuristics ##### (2-exchange)
 
         # draw 2 non-consecutive random city indices
-        i, j = rand_idx(ncity, _rng)
+        i, j = rand_city_idx(ncity, _rng)
 
         if solver == "swap":
 
@@ -71,13 +79,20 @@ def relax(seq0, D, solver="swap", maxiter=100, random_state=42):
     return result
 
 
-def brute_force(seq0, D):
+def brute_force(D, seq0=None, random_state=42):
     # not sustainable for high seq0.size
     # seq0: assumed [0,...,0] array_like
 
     # ncity = seq0.size - 1  # number of cities in the path
     # f_seq = np.empty(maxiter + 1)  # objective function sequence
     # time_seq = np.zeros_like(f_seq)  # runtime for each iteration
+
+    ncity = D.shape[0]
+    _rng = np.random.default_rng(random_state)  # generation seed
+
+    if seq0 is None:
+        # generate random hamiltonian cycle [0,...,0]
+        seq0 = rand_init_guess(ncity, _rng)
 
     best_seq = seq0.copy()  # starting solution, assume City0 in seq0[0]
     best_f = tsp_fun(seq0, D)  # starting objective function
