@@ -3,7 +3,6 @@
 import numpy as np
 # import matplotlib.pyplot as plt
 
-from tsp_solvers import solve_swap, solve_multi_start
 from tsp_solvers.tsp import tsp_fun, circle_cities, random_seq, create_city, generate_cities, adjacency
 from tsp_solvers.diagnostic_utils import diagnostic, plot_points, plot_fun
 
@@ -11,10 +10,13 @@ from tsp_solvers.optimize import solve_tsp
 
 # %%
 
-n1 = 30
+n1 = 10
 
-D1, C1, _ = circle_cities(n1)
+# D1, C1, _ = circle_cities(n1)
+D1, C1 = generate_cities(n1)
 cities1 = create_city(C1)
+
+sol1 = np.append(np.arange(n1), 0)
 
 seq1 = random_seq(n1, seed=43)
 # seq2 = random_seq(n1, seed=43)
@@ -28,26 +30,48 @@ dist1 = tsp_fun(seq1, D1)
 
 # %% refactored
 
-one_res = solve_tsp(tsp_fun, D1, solver="multi-start", options=dict(local_search="swap-rev"))
+res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=800))
+res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev", options=dict(maxiter=800))
 
-res_swap = solve_swap(tsp_fun, D1, solver="swap")
-res_swap_rev = solve_swap(tsp_fun, D1, solver="swap-rev")
+res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
+    options=dict(local_search="swap", ls_maxiter=300))
+res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
+    options=dict(local_search="swap-rev", ls_maxiter=300))
 
-res_multi_swap = solve_multi_start(tsp_fun, D1, local_search="swap")
-res_multi_swap_rev = solve_multi_start(tsp_fun, D1, local_search="swap-rev")
+res_ann_swap = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
+    options=dict(perturbation="swap", maxiter_inner=300))
+res_ann_swap_rev = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
+    options=dict(perturbation="swap-rev", maxiter_inner=300))
+
+brute = solve_tsp(tsp_fun, D1, "brute-force", options=dict(n_jobs=4))
+plot_points(C1, brute.x)
 
 diagnostic(C1, res_swap)
+print(res_swap.solver)
 print(res_swap.fun)
 print("% ---- %")
 diagnostic(C1, res_swap_rev)
+print(res_swap_rev.solver)
 print(res_swap_rev.fun)
 print("% ---- %")
 diagnostic(C1, res_multi_swap)
+print(res_multi_swap.solver)
 print(res_multi_swap.fun)
 print("% ---- %")
 diagnostic(C1, res_multi_swap_rev)
+print(res_multi_swap_rev.solver)
 print(res_multi_swap_rev.fun)
 print("% ---- %")
+diagnostic(C1, res_ann_swap)
+# plot_fun(res_ann_swap.temp_seq)
+print(res_ann_swap.solver)
+print(res_ann_swap.fun)
+print("% ---- %")
+diagnostic(C1, res_ann_swap_rev)
+print(res_ann_swap_rev.solver)
+print(res_ann_swap_rev.fun)
+print("% ---- %")
+plot_points(C1, sol1)
 
 
 # %% First try

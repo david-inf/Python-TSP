@@ -10,7 +10,7 @@ Given a set of cities:
 **place image**
 
 Find the shortest possible route that connects all cities:
-**place image with admissible solution**
+**place image with feasible solution**
 
 Algorithms:
 - Heuristics:

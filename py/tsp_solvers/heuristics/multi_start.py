@@ -11,13 +11,35 @@ from tsp_solvers.solvers_utils import rand_init_guess
 ## Multi-start metaheuristic
 def solve_multi_start(fun, D, nsim=500, local_search="swap", ls_maxiter=100,
                       random_state=42):
+    """
+    Multi-start meta-heuristic with local search.
+
+    Parameters
+    ----------
+    fun : callable
+        TSP objective function.
+    D : array_like
+        Distance (cost) matrix.
+    nsim : int, optional
+        Number of simulation for initial guess to perform. The default is 500.
+    local_search : string, optional
+        Local search algorithm. The default is "swap".
+    ls_maxiter : int, optional
+        Maximum number of iterations for local search. The default is 100.
+    random_state : int, optional
+        Seed for numpy.random.Generator. The default is 42.
+
+    Returns
+    -------
+    result : OptimizeResult
+    """
 
     ncity = D.shape[0]  # number of cities in the path
 
     _rng = np.random.default_rng(random_state)  # initial guess Generator
     _rng_ls = np.random.default_rng()           # local search Generator
 
-    f_seq = np.empty(nsim)  # f(x) for each simulation
+    f_seq = np.empty(nsim)  # f(x) for each simulation, quite nonsense
     best_f = np.Inf         # starting f(x)
     best_seq = None         # starting path
 

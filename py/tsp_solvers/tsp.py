@@ -37,6 +37,18 @@ def adjacency(seq):
     return A
 
 
+def check_constraint(seq):
+
+    ncity = seq.size - 1
+    A = adjacency(seq)
+
+    ## check that each node has one incoming and one outgoing edge
+    sum_rows_cols = np.sum(np.sum(A, axis=0) + np.sum(A, axis=1))
+    constraint1 = sum_rows_cols == 2 * ncity
+
+    return constraint1
+
+
 def random_seq(ncity, seed=42):
     # ncity: number of cities to generate
     # generate a sequence that starts from a city indexed with 0

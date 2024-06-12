@@ -58,6 +58,7 @@ def diagnostic(coords, opt_res):
     # opt_res: OptimizeResult
 
     fig, axs = plt.subplots(1, 2, layout="constrained")
+    plt.title(opt_res.solver)
 
     # plot graph
     plot_points(coords, opt_res.x, axs[0])

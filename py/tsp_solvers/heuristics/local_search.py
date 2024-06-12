@@ -9,7 +9,28 @@ from tsp_solvers import rand_init_guess
 
 ## local search swap nodes
 def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
-    # seq0: assumed [0,...,0]
+    """
+    2-exchange local search.
+
+    Parameters
+    ----------
+    fun : callable
+        TSP objective function.
+    D : array_like
+        Distance (cost) matrix.
+    seq0 : array_like, optional
+        Initial guess. The default is None.
+    solver : string, optional
+        Local search algorithm. The default is "swap".
+    maxiter : int, optional
+        Maximum number of iteraions. The default is 100.
+    random_state : int, optional
+        Seed for numpy.random.Generator. The default is 42.
+
+    Returns
+    -------
+    result : OptimizeResult
+    """
 
     ncity = D.shape[0]               # number of cities in the path
     f_seq = np.empty(maxiter + 1)    # objective function sequence
@@ -34,6 +55,7 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
     while k < maxiter:
 
         # 2-exchange step
+        # TODO: refactor
         best_seq, best_f = _two_exchange(fun, D, solver, best_seq, best_f, _rng)
 
         k += 1
@@ -79,24 +101,26 @@ def _two_exchange(fun, D, local_search, best_seq, best_f, generator):
         DESCRIPTION.
     """
 
-    ncity = best_seq.size - 1      # number of nodes
-    current_seq = best_seq.copy()  # current sequence
+    # ncity = best_seq.size - 1      # number of nodes
+    # current_seq = best_seq.copy()  # current sequence
 
     # draw 2 non-consecutive random city indices
-    i, j = _rand_city_idx(ncity, generator)
+    # i, j = _rand_city_idx(ncity, generator)
 
-    if local_search == "swap":
+    # if local_search == "swap":
 
-        # split the two selected cities
-        current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
+    #     # split the two selected cities
+    #     current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
 
-    elif local_search == "swap-rev":
+    # elif local_search == "swap-rev":
 
-        # split the two selected cities
-        current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
-        # access the elements between the two selected cities
-        # reverse the cities between
-        current_seq[i+1:j] = current_seq[i+1:j][::-1]
+    #     # split the two selected cities
+    #     current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
+    #     # access the elements between the two selected cities
+    #     # reverse the cities between
+    #     current_seq[i+1:j] = current_seq[i+1:j][::-1]
+
+    current_seq = _swap_city_idx(local_search, best_seq, generator)
 
     # compute current objective function
     current_f = fun(current_seq, D)
@@ -107,6 +131,43 @@ def _two_exchange(fun, D, local_search, best_seq, best_f, generator):
         best_f = current_f      # new best objective function value
 
     return best_seq, best_f
+
+
+def _swap_city_idx(method, current_seq, generator):
+    """
+    Sequence perturbation with a specified method.
+
+    Parameters
+    ----------
+    method : string
+        DESCRIPTION.
+    current_seq : array_like
+        Sequence to perturbate.
+    generator : numpy.random.Generator
+
+    Returns
+    -------
+    current_seq : array_like
+        DESCRIPTION.
+    """
+
+    ncity = current_seq.size - 1
+    i, j = _rand_city_idx(ncity, generator)
+
+    if method == "swap":
+
+        # split the two selected cities
+        current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
+
+    elif method == "swap-rev":
+
+        # split the two selected cities
+        current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
+        # access the elements between the two selected cities
+        # reverse the cities between
+        current_seq[i+1:j] = current_seq[i+1:j][::-1]
+
+    return current_seq
 
 
 def _rand_city_idx(ncity, generator):
