@@ -14,7 +14,7 @@ from tsp_solvers.heuristics.local_search import _swap_city_idx
 
 
 def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
-                              maxiter_inner=100, init_temp=1.,
+                              maxiter_inner=150, init_temp=1.,
                               perturbation="swap", cooling_rate=0.05,
                               random_state=42):
 
@@ -92,6 +92,24 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
 # %% Utils
 
 def _acceptance_rule(ft, fk, temp, rand_unif):
+    """
+    Metropolis acceptance rule.
+
+    Parameters
+    ----------
+    ft : TYPE
+        DESCRIPTION.
+    fk : TYPE
+        DESCRIPTION.
+    temp : TYPE
+        DESCRIPTION.
+    rand_unif : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    criterion : bool
+    """
 
     criterion = False
 

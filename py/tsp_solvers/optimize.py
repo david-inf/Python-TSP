@@ -37,9 +37,7 @@ def solve_tsp(fun, D, solver="swap", seq0=None, options=None):
 
     Returns
     -------
-    res : TYPE
-        DESCRIPTION.
-
+    res : OptimizeResult
     """
 
     if not solver in solvers_list:

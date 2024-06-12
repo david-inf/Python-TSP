@@ -9,10 +9,6 @@ from tsp_solvers.tsp import tsp_fun, circle_cities, create_city, generate_cities
 from tsp_solvers import solve_tsp, solvers_list, multi_start_ls
 
 
-root = tk.Tk()
-root.title("Travelling Salesman Problem")
-
-
 class App:
     def __init__(self, master):
         self.master = master
@@ -45,25 +41,32 @@ class App:
             "Clear", lambda: self.my_turtle.clear())
         ## slider for number of cities
         self.ncity_slide = self.create_slider(
-            "N", from_=1, to=30, orient=tk.HORIZONTAL)
-        ## drop down menu for solver to use
-        self.solver_menu = self.create_menu(
-            solvers_list, "Solver")
-        self.multi_start_menu = self.create_menu(
-            multi_start_ls, "Multi-start local search")
+            "N", from_=1, to=50, orient=tk.HORIZONTAL)
         ## drop down menu for map layout
         self.map_layout_menu = self.create_menu(
             ["circle", "random"], "Map layout")
         ## draw TSP nodes
         self.draw_nodes_butt = self.create_button(
             "Draw cities", self._draw_map)
-        ## solve TSP and draw solution path
+        ## drop down menu for solver to use
+        self.solver_menu = self.create_menu(
+            solvers_list, "Solver")
+        ## drop down menu for local search method
+        self.multi_start_menu = self.create_menu(
+            multi_start_ls, "Local search")
+        ## slider for sim annealing cooling rate
+        self.cooling_rate = self.create_slider(
+            "alpha", from_=0.0001, to=0.95, orient=tk.HORIZONTAL,
+            resolution=0.0001)
+        ## button for solve TSP and draw solution path
         self.solve_butt = self.create_button(
             "Run solver", lambda: self.solve(
                 self.solver_menu.get()))
         ## display objective function value
         self.fun_lab = self.create_label("f(x): N/A")
 
+    # *************************************************** #
+    # tkinter widgets
 
     def create_button(self, text, command):
 
@@ -75,7 +78,7 @@ class App:
 
     def create_slider(self, label, **kwargs):
 
-        slider = tk.Scale(self.master, label=label, **kwargs)
+        slider = tk.Scale(self.master, label=label, variable=tk.DoubleVar(), **kwargs)
         slider.pack()
 
         return slider
@@ -108,14 +111,13 @@ class App:
         if self.cost is None:
             raise RuntimeError("Distance matrix is None")
 
-        # if solver in ("swap", "swap-rev"):
-        #     res = relax(self.cost, solver=solver, maxiter=500)
-
-        # elif solver == "brute-force":
-        #     res = brute_force(self.cost)
-
         if solver == "multi-start":
             options = dict(local_search=self.multi_start_menu.get())
+            res = solve_tsp(tsp_fun, self.cost, solver, options)
+
+        elif solver == "simulated-annealing":
+            options = dict(local_search=self.multi_start_menu.get(),
+                           cooling_rate=self.cooling_rate.get())
             res = solve_tsp(tsp_fun, self.cost, solver, options)
 
         else:
@@ -213,5 +215,8 @@ class App:
 if __name__ == "__main__":
 
     root = tk.Tk()
+    root.title("Travelling Salesman Problem")
+
     app = App(root)
+
     root.mainloop()  # tkinter event loop
