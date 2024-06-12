@@ -4,8 +4,9 @@ import turtle
 import tkinter as tk
 from tkinter import ttk
 
-from tsp import circle_cities, generate_cities, create_city, random_seq
-from solvers import solvers_list, relax, brute_force
+from tsp_solvers.tsp import tsp_fun, circle_cities, create_city, generate_cities
+# from tsp_solvers import solve_brute_force, solve_swap, solve_multi_start, multi_start_ls
+from tsp_solvers import solve_tsp, solvers_list, multi_start_ls
 
 
 root = tk.Tk()
@@ -48,15 +49,18 @@ class App:
         ## drop down menu for solver to use
         self.solver_menu = self.create_menu(
             solvers_list, "Solver")
+        self.multi_start_menu = self.create_menu(
+            multi_start_ls, "Multi-start local search")
         ## drop down menu for map layout
         self.map_layout_menu = self.create_menu(
             ["circle", "random"], "Map layout")
         ## draw TSP nodes
         self.draw_nodes_butt = self.create_button(
             "Draw cities", self._draw_map)
-        ## draw TSP path from solver solution
+        ## solve TSP and draw solution path
         self.solve_butt = self.create_button(
-            "Run solver", lambda: self.solve(self.solver_menu.get()))
+            "Run solver", lambda: self.solve(
+                self.solver_menu.get()))
         ## display objective function value
         self.fun_lab = self.create_label("f(x): N/A")
 
@@ -104,11 +108,18 @@ class App:
         if self.cost is None:
             raise RuntimeError("Distance matrix is None")
 
-        if solver in ("swap", "swap-rev"):
-            res = relax(self.cost, solver=solver, maxiter=500)
+        # if solver in ("swap", "swap-rev"):
+        #     res = relax(self.cost, solver=solver, maxiter=500)
 
-        elif solver == "brute-force":
-            res = brute_force(self.cost)
+        # elif solver == "brute-force":
+        #     res = brute_force(self.cost)
+
+        if solver == "multi-start":
+            options = dict(local_search=self.multi_start_menu.get())
+            res = solve_tsp(tsp_fun, self.cost, solver, options)
+
+        else:
+            res = solve_tsp(tsp_fun, self.cost, solver)
 
         ## assign attributes
         self.opt_result = res

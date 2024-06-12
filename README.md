@@ -15,9 +15,13 @@ Find the shortest possible route that connects all cities:
 Algorithms:
 - Heuristics:
     - 2-exchange
-    - Brute force
+    - k-exchange??
+    - Brute-force
 - Meta-heuristics
-    - sim ann
+    - Multi-start
+        - 2-exchange
+        - k-exchange??
+    - Simulated annealing
 
 ## Examples
 
