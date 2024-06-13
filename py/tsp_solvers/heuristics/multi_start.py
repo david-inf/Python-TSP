@@ -15,7 +15,8 @@ from tsp_solvers.solvers_utils import rand_init_guess
 
 ## Multi-start metaheuristic
 def solve_multi_start(fun, D, nsim=500, base_alg="local-search",
-                      local_search="swap", random_state=42, base_options=None):
+                      local_search="swap", random_state=42,
+                      local_search_options={}, annealing_options={}):
     """
     Multi-start meta-heuristic with local search.
 
@@ -41,13 +42,9 @@ def solve_multi_start(fun, D, nsim=500, base_alg="local-search",
     result : OptimizeResult
     """
 
-    if base_alg not in ("local-search", "sim-annealing"):
+    if base_alg not in ("local-search", "sim-annealing", "local-search+annealing"):
 
         raise RuntimeError("Unknown base algorithm.")
-
-    if base_options is None:
-
-        base_options = {}
 
     ncity = D.shape[0]  # number of cities in the path
 
@@ -63,22 +60,33 @@ def solve_multi_start(fun, D, nsim=500, base_alg="local-search",
     # use sorting for best solution
     for i in range(nsim):
 
-        # generate random initial guess
+        ## generate random initial guess
         seqt = rand_init_guess(ncity, _rng)
 
-        # perform local search with current initial guess
-        # return OptimizeResult object
-        # consider using solve_swap
         if base_alg == "local-search":
 
-            res_sim = solve_swap(fun, D, seqt, local_search, **base_options)
+            ## local search
+            res_sim = solve_swap(
+                fun, D, seqt, local_search, **local_search_options)
 
         elif base_alg == "sim-annealing":
 
-            res_sim = solve_simulated_annealing(fun, D, seqt, perturbation=local_search,
-                                                **base_options)
+            ## simulated annealing
+            res_sim = solve_simulated_annealing(
+                fun, D, seqt, perturbation=local_search, **annealing_options)
 
-        # check current f(x) value for improvement
+        elif base_alg == "local-search+annealing":
+
+            ## local search
+            res_local_search = solve_swap(
+                fun, D, seqt, local_search, **local_search_options)
+
+            ## from local search solution starts sim annealing
+            res_sim = solve_simulated_annealing(
+                fun, D, res_local_search.x, perturbation=local_search,
+                **annealing_options)
+
+        ## check current f(x) value for improvement
         if res_sim.fun < best_f:
 
             best_f = res_sim.fun  # new best objective function value
@@ -88,8 +96,15 @@ def solve_multi_start(fun, D, nsim=500, base_alg="local-search",
 
     _end = time.time()
 
-    result = OptimizeResult(fun=best_f, x=best_seq, nit=nsim, base_alg=base_options,
-                            solver=("multi-start with " + local_search),
+    if local_search_options == {}:
+        local_search_options = None
+    if annealing_options == {}:
+        annealing_options = None
+
+    result = OptimizeResult(fun=best_f, x=best_seq, nit=nsim,
+                            local_search=local_search_options,
+                            annealing=annealing_options,
+                            solver=("multi-start on " + base_alg + " with " + local_search),
                             runtime=(_end - _start), fun_seq=f_seq)
 
     return result

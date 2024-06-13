@@ -116,13 +116,13 @@ def _annealing(fun, cost, x0, maxiter_inner, neighbor_meth, cooling_rate,
 
             ## check for global improvement
             if current_f < best_f:
-                # update best variables
+                # update best variables, best_f can only decrease
                 best_x = current_x
                 best_f = current_f
 
             ## Metropolis acceptance rule
             if _metropolis(current_f, fk, temp):
-
+                # fk can increase according to Metropolis
                 xk, fk = current_x, current_f
                 accepted += 1
 

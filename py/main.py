@@ -39,7 +39,8 @@ res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
     options=dict(local_search="swap", ls_maxiter=300))
 
 res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=500, local_search="swap-rev", base_options=dict(maxiter=200)))
+    options=dict(nsim=500, local_search="swap-rev",
+                 local_search_options=dict(maxiter=200)))
 
 
 # res_ann_swap = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
