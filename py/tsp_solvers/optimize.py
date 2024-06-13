@@ -8,7 +8,7 @@ from tsp_solvers.heuristics.simulated_annealing import solve_simulated_annealing
 
 solvers_list = ["brute-force", "swap", "swap-rev", "multi-start", "simulated-annealing"]
 
-multi_start_ls = ["swap", "swap-rev"]
+multi_start_ls = ["swap", "swap-rev", "sim-annealing"]
 
 
 def solve_tsp(fun, D, solver="swap", seq0=None, options=None):
@@ -40,13 +40,16 @@ def solve_tsp(fun, D, solver="swap", seq0=None, options=None):
     res : OptimizeResult
     """
 
-    if not solver in solvers_list:
+    if solver not in solvers_list:
+
         raise RuntimeError("Unknown solver.")
 
     if options is None:
+
         options = {}
 
     ## choose solver and solve TSP
+    res = None
     if solver == "brute-force":
         res = solve_brute_force(fun, D, seq0, **options)
         # raise RuntimeWarning("Brute force is computationally expensive.")

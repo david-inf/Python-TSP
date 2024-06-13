@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_fun(fun_seq, ax=None):
+def plot_fun(fun_seq, scalex="log", ax=None):
     # fun_seq: array_like
 
     if ax is None:
@@ -13,7 +13,7 @@ def plot_fun(fun_seq, ax=None):
     iterations = np.arange(1, fun_seq.size + 1)
     ax.plot(iterations, fun_seq)
 
-    ax.set_xscale("log")
+    ax.set_xscale(scalex)
 
     ax.set_xlim(1)
 
@@ -63,5 +63,5 @@ def diagnostic(coords, opt_res):
     # plot graph
     plot_points(coords, opt_res.x, axs[0])
     # plot function performance
-    plot_fun(opt_res.fun_seq, axs[1])
+    plot_fun(opt_res.fun_seq, ax=axs[1])
             

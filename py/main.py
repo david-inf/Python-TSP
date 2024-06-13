@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 from tsp_solvers.tsp import tsp_fun, circle_cities, random_seq, create_city, generate_cities, adjacency
 from tsp_solvers.diagnostic_utils import diagnostic, plot_points, plot_fun
@@ -10,7 +10,7 @@ from tsp_solvers.optimize import solve_tsp
 
 # %%
 
-n1 = 10
+n1 = 40
 
 # D1, C1, _ = circle_cities(n1)
 D1, C1 = generate_cities(n1)
@@ -31,20 +31,25 @@ dist1 = tsp_fun(seq1, D1)
 # %% refactored
 
 res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=800))
+
 res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev", options=dict(maxiter=800))
+
 
 res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
     options=dict(local_search="swap", ls_maxiter=300))
+
 res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(local_search="swap-rev", ls_maxiter=300))
+    options=dict(nsim=500, local_search="swap-rev", base_options=dict(maxiter=200)))
 
-res_ann_swap = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
-    options=dict(perturbation="swap", maxiter_inner=300))
+
+# res_ann_swap = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
+#     options=dict(perturbation="swap", maxiter_inner=300))
 res_ann_swap_rev = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
-    options=dict(perturbation="swap-rev", maxiter_inner=300))
+    options=dict(perturbation="swap-rev", maxiter_outer=800, maxiter_inner=40))
 
-brute = solve_tsp(tsp_fun, D1, "brute-force", options=dict(n_jobs=4))
-plot_points(C1, brute.x)
+
+# brute = solve_tsp(tsp_fun, D1, "brute-force", options=dict(n_jobs=4))
+# plot_points(C1, brute.x)
 
 diagnostic(C1, res_swap)
 print(res_swap.solver)
@@ -61,20 +66,37 @@ print("% ---- %")
 diagnostic(C1, res_multi_swap_rev)
 print(res_multi_swap_rev.solver)
 print(res_multi_swap_rev.fun)
-print("% ---- %")
-diagnostic(C1, res_ann_swap)
-# plot_fun(res_ann_swap.temp_seq)
-print(res_ann_swap.solver)
-print(res_ann_swap.fun)
+# print("% ---- %")
+# diagnostic(C1, res_ann_swap)
+# # plot_fun(res_ann_swap.temp_seq)
+# print(res_ann_swap.solver)
+# print(res_ann_swap.fun)
 print("% ---- %")
 diagnostic(C1, res_ann_swap_rev)
 print(res_ann_swap_rev.solver)
 print(res_ann_swap_rev.fun)
-print("% ---- %")
-plot_points(C1, sol1)
+# print("% ---- %")
+# plot_points(C1, sol1)
 
 
 # %% First try
+
+fig, ax1 = plt.subplots()
+
+# Plot data with primary x-axis
+ax1.plot(1 / np.log(np.arange(2, 801)), label='1/log(x)')
+ax1.grid(True, which="both", axis="both")
+# ax1.set_ylabel('Y data')
+# ax1.set_xlabel('sin(y)', color='g')
+# ax1.tick_params(axis='x', labelcolor='g')
+
+# Create secondary x-axis
+ax2 = ax1.twinx()
+ax2.plot(50 * 0.985**np.arange(2, 801), label='c_k', color="tab:orange")
+# ax2.plot(res_ann_swap_rev.temp_seq[:342])
+# ax2.set_xlabel('exp(y/3)', color='b')
+# ax2.tick_params(axis='x', labelcolor='b')
+
 
 # %%% try the algorithm
 

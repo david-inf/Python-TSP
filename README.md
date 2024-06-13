@@ -22,6 +22,7 @@ Algorithms:
         - 2-exchange
         - k-exchange??
     - Simulated annealing
+        - Geometric cooling schedule
 
 ## Examples
 

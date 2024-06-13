@@ -36,7 +36,8 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
     f_seq = np.empty(maxiter + 1)    # objective function sequence
     time_seq = np.zeros_like(f_seq)  # runtime for each iteration
 
-    _rng = np.random.default_rng(random_state)  # generation seed
+    ## seed for initial guess and swap routines
+    _rng = np.random.default_rng(random_state)
 
     if seq0 is None:
         # generate random hamiltonian cycle [0,...,0]
@@ -54,9 +55,16 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
 
     while k < maxiter:
 
-        # 2-exchange step
-        # TODO: refactor
-        best_seq, best_f = _two_exchange(fun, D, solver, best_seq, best_f, _rng)
+        ## 2-exchange procedure, smooth the hard constraint
+        current_seq = _swap_city_idx(solver, best_seq, _rng)
+
+        # compute current objective function
+        current_f = fun(current_seq, D)
+
+        if current_f < best_f:
+            # if the objective function decreases update the sequence
+            best_seq = current_seq  # new sequence
+            best_f = current_f      # new best objective function value
 
         k += 1
 
@@ -71,71 +79,10 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
 
 # %% Utils
 
-# smooth the hard constraint
-# 2-exchange routine
-def _two_exchange(fun, D, local_search, best_seq, best_f, generator):
-    """
-    Swap two cities and check for objective function improvement.
-    Single step in local search algorithm.
-
-    Parameters
-    ----------
-    fun : callable
-        DESCRIPTION.
-    D : array_like
-        DESCRIPTION.
-    local_search : string
-        DESCRIPTION.
-    best_seq : array_like
-        DESCRIPTION.
-    best_f : float
-        DESCRIPTION.
-    generator : numpy.random.Generator
-        DESCRIPTION.
-
-    Returns
-    -------
-    best_seq : array_like
-        DESCRIPTION.
-    best_f : float
-        DESCRIPTION.
-    """
-
-    # ncity = best_seq.size - 1      # number of nodes
-    # current_seq = best_seq.copy()  # current sequence
-
-    # draw 2 non-consecutive random city indices
-    # i, j = _rand_city_idx(ncity, generator)
-
-    # if local_search == "swap":
-
-    #     # split the two selected cities
-    #     current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
-
-    # elif local_search == "swap-rev":
-
-    #     # split the two selected cities
-    #     current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
-    #     # access the elements between the two selected cities
-    #     # reverse the cities between
-    #     current_seq[i+1:j] = current_seq[i+1:j][::-1]
-
-    current_seq = _swap_city_idx(local_search, best_seq, generator)
-
-    # compute current objective function
-    current_f = fun(current_seq, D)
-
-    if current_f < best_f:
-        # if the objective function decreases update the sequence
-        best_seq = current_seq  # new sequence
-        best_f = current_f      # new best objective function value
-
-    return best_seq, best_f
-
 
 def _swap_city_idx(method, current_seq, generator):
     """
-    Sequence perturbation with a specified method.
+    Sequence perturbation with a specified method. Neighborhood operator.
 
     Parameters
     ----------
@@ -161,11 +108,8 @@ def _swap_city_idx(method, current_seq, generator):
 
     elif method == "swap-rev":
 
-        # split the two selected cities
-        current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
-        # access the elements between the two selected cities
-        # reverse the cities between
-        current_seq[i+1:j] = current_seq[i+1:j][::-1]
+        # reverse indices between the two previously selected
+        current_seq[i:j+1] = np.flip(current_seq[i:j+1])
 
     return current_seq
 
@@ -198,5 +142,3 @@ def _rand_city_idx(ncity, generator):
     i, j = generator.choice(cities, 2, replace=False)
 
     return i, j
-
-

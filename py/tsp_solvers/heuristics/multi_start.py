@@ -4,13 +4,18 @@ import time
 import numpy as np
 from scipy.optimize import OptimizeResult
 
-from tsp_solvers.heuristics.local_search import _two_exchange
+# from tsp_solvers.heuristics.local_search import _two_exchange
+# from tsp_solvers.heuristics.simulated_annealing import _annealing
+
+from tsp_solvers.heuristics.local_search import solve_swap
+from tsp_solvers.heuristics.simulated_annealing import solve_simulated_annealing
+
 from tsp_solvers.solvers_utils import rand_init_guess
 
 
 ## Multi-start metaheuristic
-def solve_multi_start(fun, D, nsim=500, local_search="swap", ls_maxiter=100,
-                      random_state=42):
+def solve_multi_start(fun, D, nsim=500, base_alg="local-search",
+                      local_search="swap", random_state=42, base_options=None):
     """
     Multi-start meta-heuristic with local search.
 
@@ -22,6 +27,8 @@ def solve_multi_start(fun, D, nsim=500, local_search="swap", ls_maxiter=100,
         Distance (cost) matrix.
     nsim : int, optional
         Number of simulation for initial guess to perform. The default is 500.
+    base_alg : string
+        Base algorithm to improve performance. The default is "local-search"
     local_search : string, optional
         Local search algorithm. The default is "swap".
     ls_maxiter : int, optional
@@ -34,10 +41,17 @@ def solve_multi_start(fun, D, nsim=500, local_search="swap", ls_maxiter=100,
     result : OptimizeResult
     """
 
+    if base_alg not in ("local-search", "sim-annealing"):
+
+        raise RuntimeError("Unknown base algorithm.")
+
+    if base_options is None:
+
+        base_options = {}
+
     ncity = D.shape[0]  # number of cities in the path
 
     _rng = np.random.default_rng(random_state)  # initial guess Generator
-    _rng_ls = np.random.default_rng()           # local search Generator
 
     f_seq = np.empty(nsim)  # f(x) for each simulation, quite nonsense
     best_f = np.Inf         # starting f(x)
@@ -45,7 +59,8 @@ def solve_multi_start(fun, D, nsim=500, local_search="swap", ls_maxiter=100,
 
     _start = time.time()
 
-    # consider using joblib
+    # TODO: refactor with joblib
+    # use sorting for best solution
     for i in range(nsim):
 
         # generate random initial guess
@@ -53,70 +68,33 @@ def solve_multi_start(fun, D, nsim=500, local_search="swap", ls_maxiter=100,
 
         # perform local search with current initial guess
         # return OptimizeResult object
-        rest = _local_search(fun, D, seqt, local_search, ls_maxiter, _rng_ls)
+        # consider using solve_swap
+        if base_alg == "local-search":
+
+            res_sim = solve_swap(fun, D, seqt, local_search, **base_options)
+
+        elif base_alg == "sim-annealing":
+
+            res_sim = solve_simulated_annealing(fun, D, seqt, perturbation=local_search,
+                                                **base_options)
 
         # check current f(x) value for improvement
-        if rest.fun < best_f:
+        if res_sim.fun < best_f:
 
-            best_f = rest.fun  # new best objective function value
-            best_seq = rest.x  # sequence related to best_f
+            best_f = res_sim.fun  # new best objective function value
+            best_seq = res_sim.x  # sequence related to best_f
 
         f_seq[i] = best_f
 
     _end = time.time()
 
-    result = OptimizeResult(fun=best_f, x=best_seq, nit=nsim,
+    result = OptimizeResult(fun=best_f, x=best_seq, nit=nsim, base_alg=base_options,
                             solver=("multi-start with " + local_search),
                             runtime=(_end - _start), fun_seq=f_seq)
 
     return result
 
 
-# %% Utils
+def _inner_algorithm():
 
-def _local_search(fun, D, seq0, solver, maxiter, generator):
-    """
-    Simplified local search for multi-start algorithm.
-
-    Parameters
-    ----------
-    fun : callable
-        DESCRIPTION.
-    D : array_like
-        DESCRIPTION.
-    seq0 : array_like
-        DESCRIPTION.
-    solver : string
-        DESCRIPTION.
-    maxiter : int
-        DESCRIPTION.
-    generator : numpy.random.Generator object
-        DESCRIPTION.
-
-    Returns
-    -------
-    result : OptimizeResult
-        DESCRIPTION.
-    """
-
-    best_seq = seq0.copy()  # initial guess
-    best_f = fun(seq0, D)   # initial f(x) value
-
-    _start = time.time()
-
-    k = 0
-
-    while k < maxiter:
-
-        # perform a 2-exchange step, swap 2 cities and check f(x)
-        best_seq, best_f = _two_exchange(fun, D, solver, best_seq, best_f, generator)
-        # _two_exchange(fun, D, local_search, best_seq, best_f, generator)
-
-        k += 1
-
-    _end = time.time()
-
-    result = OptimizeResult(fun=best_f, x=best_seq, nit=k, solver=solver,
-                            runtime=(_end - _start))
-
-    return result
+    return None

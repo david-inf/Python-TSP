@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from tsp_solvers.tsp import tsp_fun, circle_cities, create_city, generate_cities
-# from tsp_solvers import solve_brute_force, solve_swap, solve_multi_start, multi_start_ls
+
 from tsp_solvers import solve_tsp, solvers_list, multi_start_ls
 
 
@@ -53,7 +53,7 @@ class App:
             solvers_list, "Solver")
         ## drop down menu for local search method
         self.multi_start_menu = self.create_menu(
-            multi_start_ls, "Local search")
+            multi_start_ls, "Multi-start base")
         ## slider for sim annealing cooling rate
         self.cooling_rate = self.create_slider(
             "alpha", from_=0.0001, to=0.95, orient=tk.HORIZONTAL,
@@ -112,7 +112,8 @@ class App:
             raise RuntimeError("Distance matrix is None")
 
         if solver == "multi-start":
-            options = dict(local_search=self.multi_start_menu.get())
+            options = dict(local_search=self.multi_start_menu.get(),
+                           base_options=dict())
             res = solve_tsp(tsp_fun, self.cost, solver, options)
 
         elif solver == "simulated-annealing":

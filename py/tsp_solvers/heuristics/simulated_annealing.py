@@ -4,6 +4,7 @@
 """
 
 import time
+import random
 import numpy as np
 from scipy.optimize import OptimizeResult, fsolve
 
@@ -14,97 +15,228 @@ from tsp_solvers.heuristics.local_search import _swap_city_idx
 
 
 def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
-                              maxiter_inner=150, init_temp=1.,
-                              perturbation="swap", cooling_rate=0.05,
+                              maxiter_inner=50, init_temp=1.,
+                              perturbation="swap-rev", cooling_rate=0.985,
                               random_state=42):
 
     _rng = np.random.default_rng(random_state)
-    _rng_inner = np.random.default_rng()  # seed for perturbation
-    _min_temp = 1e-5
 
+    ## setup initial guess
     if seq0 is None:
-        # generate starting sequence
+        # generate random starting sequence
         seq0 = rand_init_guess(D.shape[0], _rng)
-        best_seq = seq0.copy()
-    else:
-        best_seq = seq0.copy()
 
-    # starting objective value
-    best_f = fun(best_seq, D)
-    # starting temperature
-    temp = init_temp
+    ## ****************************************** ##
 
-    temp_seq = np.empty(maxiter_outer + 1)  # temperature after each epoch
-    temp_seq[0] = init_temp
-    f_seq = np.empty_like(temp_seq)         # best_f sequence
-    f_seq[0] = best_f
+    ## procedure for selecting a large enough initial temperature
+    # starting with a small value
+    # init_temp will be progressively multiplied by beta>1
+    # until the acceptance rate is close to 1.
+    q = 0
 
-    _start = time.time()
-    _need_to_stop = False
-    k = 0
+    while q < 15:
 
-    # outer loop
-    while not _need_to_stop:
+        # run sim annealing with current temperature
+        res_temp = _annealing(fun, D, seq0, maxiter_inner, perturbation,
+                              cooling_rate, 3, init_temp, random_state)
 
-        ## save solution to improve
-        seqk = best_seq.copy()
-        fk = best_f.copy()
+        # compute acceptance rate
+        chi = np.mean(res_temp.chi_seq)
 
-        # inner loop
-        # consider using joblib
-        for _ in range(maxiter_inner):
+        if chi >= 0.8:
+            # acceptance rate satisfied
+            break
 
-            ## generate new sequence by perturbing the current one
-            current_seq = _swap_city_idx(perturbation, seqk, _rng_inner)
-            current_f = fun(current_seq, D)
+        # run again sim annealing with increased temperature
+        init_temp *= 1.25
 
-            ## check for global improvement
-            if current_f < best_f:
-                # update best variables
-                best_seq = current_seq
-                best_f = current_f
+        q += 1
 
-            ## Metropolis acceptance rule
-            if _acceptance_rule(current_f, fk, temp, _rng.random()):
-                seqk, fk = current_seq, current_f
+    ## ****************************************** ##
 
-        ## decrease temperature
-        temp *= (1 - cooling_rate)
+    ## solve TSP
+    res = _annealing(fun, D, seq0, maxiter_inner, perturbation, cooling_rate,
+                     maxiter_outer, init_temp, random_state)
 
-        k += 1
-
-        f_seq[k] = best_f
-        temp_seq[k] = temp
-
-        if temp < _min_temp or k >= maxiter_outer:
-            _need_to_stop = True
-
-    _end = time.time()
-
-    res = OptimizeResult(fun=best_f, x=best_seq, nit=k,
-                         solver=("simulated-annealing with " + perturbation),
-                         runtime=(_end - _start), fun_seq=f_seq,
-                         temp_seq=temp_seq)
+    res.q = q
 
     return res
 
 
 # %% Utils
 
-def _acceptance_rule(ft, fk, temp, rand_unif):
+# temperature parameter tuning
+def _annealing(fun, cost, x0, maxiter_inner, neighbor_meth, cooling_rate,
+               maxiter_outer, init_temp, random_state=None):
+    """
+    Choose an optimal initial temperature s.t. nearly all transitions are
+    accepted at the first iterations. Averaged on maxiter_outer iterations.
+
+    Returns
+    -------
+    None.
+
+    """
+
+    ## random numbers generator
+    _rng = np.random.default_rng(random_state)
+
+    ## starting values
+    temp = init_temp            # starting temperature
+    best_x = x0.copy()          # starting sequence
+    best_f = fun(best_x, cost)  # starting objective value
+
+    ## allocate performance sequences
+    chi_seq = np.empty(maxiter_outer)       # acceptance rate
+    temp_seq = np.empty(maxiter_outer + 1)  # temperature after each epoch
+    temp_seq[0] = init_temp
+    f_seq = np.empty_like(temp_seq)         # best f(x), local minima sequence
+    f_seq[0] = best_f
+
+    _start = time.time()
+    # _need_to_stop = False
+    k = 0
+
+    # outer loop
+    while k < maxiter_outer:
+
+        ## save solution to improve
+        xk = best_x.copy()
+        fk = best_f.copy()
+
+        accepted = 0
+
+        ## inner loop, improve fk with transitions
+        # consider using joblib
+        for _ in range(maxiter_inner):
+
+            ## generate new sequence by perturbing the current one
+            current_x = _swap_city_idx(neighbor_meth, xk, _rng)
+            current_f = fun(current_x, cost)
+
+            ## check for global improvement
+            if current_f < best_f:
+                # update best variables
+                best_x = current_x
+                best_f = current_f
+
+            ## Metropolis acceptance rule
+            if _metropolis(current_f, fk, temp):
+
+                xk, fk = current_x, current_f
+                accepted += 1
+
+        ## decrease temperature
+        temp *= cooling_rate
+
+        ## update acceptance rate: accepted transitions / proposed
+        chi_seq[k] = accepted / maxiter_inner
+
+        k += 1
+
+        ## update sequences
+        f_seq[k] = best_f   # update best objective function value
+        temp_seq[k] = temp  # update temperature value
+
+        if temp < init_temp / 1000.:
+
+            # _need_to_stop = True
+            break
+
+    _end = time.time()
+
+    res = OptimizeResult(fun=best_f, x=best_x, nit=k, runtime=(_end - _start),
+                         solver=("simulated-annealing with " + neighbor_meth),
+                         temp=temp,
+                         chi_seq=chi_seq, temp_seq=temp_seq, fun_seq=f_seq)
+
+    return res
+
+
+
+# base simulated annealing algorithm
+# def _simulated_annealing(fun, D, seq0, maxiter_outer=100,
+#                          maxiter_inner=300, init_temp=1.,
+#                          perturbation="swap", cooling_rate=0.8,
+#                          random_state=42):
+
+#     _rng_inner = np.random.default_rng()  # seed for perturbation
+#     _min_temp = init_temp / 1000.
+
+#     best_seq = seq0.copy()
+
+#     # starting objective value
+#     best_f = fun(best_seq, D)
+#     # starting temperature
+#     temp = init_temp
+
+#     temp_seq = np.empty(maxiter_outer + 1)  # temperature after each epoch
+#     temp_seq[0] = init_temp
+#     f_seq = np.empty_like(temp_seq)         # best_f sequence
+#     f_seq[0] = best_f
+
+#     _start = time.time()
+#     _need_to_stop = False
+#     k = 0
+
+#     # outer loop
+#     while not _need_to_stop:
+
+#         ## save solution to improve
+#         seqk = best_seq.copy()
+#         fk = best_f.copy()
+
+#         # inner loop
+#         # consider using joblib
+#         for _ in range(maxiter_inner):
+
+#             ## generate new sequence by perturbing the current one
+#             current_seq = _swap_city_idx(perturbation, seqk, _rng_inner)
+#             current_f = fun(current_seq, D)
+
+#             ## check for global improvement
+#             if current_f < best_f:
+#                 # update best variables
+#                 best_seq = current_seq
+#                 best_f = current_f
+
+#             ## Metropolis acceptance rule
+#             if _metropolis(current_f, fk, temp, _rng_inner.random()):
+#                 seqk, fk = current_seq, current_f
+
+#         ## decrease temperature
+#         temp *= cooling_rate
+
+#         k += 1
+
+#         f_seq[k] = best_f
+#         temp_seq[k] = temp
+
+#         if temp < _min_temp or k >= maxiter_outer:
+#             _need_to_stop = True
+
+#     _end = time.time()
+
+#     res = OptimizeResult(fun=best_f, x=best_seq, nit=k,
+#                          solver=("simulated-annealing with " + perturbation),
+#                          runtime=(_end - _start), fun_seq=f_seq,
+#                          temp_seq=temp_seq)
+
+#     return res
+
+
+def _metropolis(ft, fk, temp):
     """
     Metropolis acceptance rule.
 
     Parameters
     ----------
-    ft : TYPE
-        DESCRIPTION.
-    fk : TYPE
-        DESCRIPTION.
-    temp : TYPE
-        DESCRIPTION.
-    rand_unif : TYPE
-        DESCRIPTION.
+    ft : float
+        Current solution.
+    fk : float
+        Previous solution.
+    temp : float
+        Temperature value.
 
     Returns
     -------
@@ -119,12 +251,14 @@ def _acceptance_rule(ft, fk, temp, rand_unif):
 
     else:
         # up-hill
+        rand_unif = random.random()  # in (0,1)
         criterion = rand_unif < np.exp(-(ft - fk) / temp)
         
     return criterion
 
 
 def _opt_iter(k, temp, cooling_rate, tol=1e-5):
+    """ Choose maximum number of outer iterations """
 
     def fun(k, temp, cooling_rate, tol=1e-5):
     
