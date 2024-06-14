@@ -56,7 +56,7 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
     while k < maxiter:
 
         ## 2-exchange procedure, smooth the hard constraint
-        current_seq = _swap_city_idx(solver, best_seq, _rng)
+        current_seq = _perturbation(solver, best_seq, _rng)
 
         # compute current objective function
         current_f = fun(current_seq, D)
@@ -79,15 +79,14 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
 
 # %% Utils
 
-
-def _swap_city_idx(method, current_seq, generator):
+def _perturbation(method, current_seq, generator):
     """
     Sequence perturbation with a specified method. Neighborhood operator.
 
     Parameters
     ----------
     method : string
-        DESCRIPTION.
+        Perturbation method.
     current_seq : array_like
         Sequence to perturbate.
     generator : numpy.random.Generator
@@ -95,28 +94,39 @@ def _swap_city_idx(method, current_seq, generator):
     Returns
     -------
     current_seq : array_like
-        DESCRIPTION.
+        Perturbed sequence.
     """
 
+    # total number of cities in the sequence
     ncity = current_seq.size - 1
-    i, j = _rand_city_idx(ncity, generator)
 
     if method == "swap":
 
+        # get two indices, i < j or i > j
+        i, j = _rand_city_idx(ncity, generator)  # np.array([i, j])
         # split the two selected cities
         current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
 
     elif method == "swap-rev":
 
+        # get two indices s.t. i < j
+        i, j = np.sort(_rand_city_idx(ncity, generator))
         # reverse indices between the two previously selected
         current_seq[i:j+1] = np.flip(current_seq[i:j+1])
+
+    elif method == "insert":
+
+        # get one random index
+        i = _rand_city_idx(ncity, generator, n_idx=1)[0]  # np.array([i])
+        # remove a city from the sequence
+        
 
     return current_seq
 
 
-def _rand_city_idx(ncity, generator):
+def _rand_city_idx(ncity, generator, n_idx=2):
     """
-    Draw two different random indices among all cities indices excluding start
+    Draw random indices among all cities indices excluding start
     and end cities, assuming seq=[0,...,0].
     Utils routine for local search algorithm
 
@@ -125,20 +135,22 @@ def _rand_city_idx(ncity, generator):
     ncity : int
         Number of cities in the problem.
     generator : numpy.random.Generator
+    n_idx : int
+        Number of indices to draw. The default is 2.
 
     Returns
     -------
-    i : int
-        First city.
-    j : int
-        Second city.
+    idx = np.array([i, j])
     """
 
+    ## all available cities
     # cities = np.arange(1, ncity)  # numerically unstable when start>>step
     cities = np.linspace(1, ncity, ncity-1, endpoint=False, dtype=np.int32)
 
-    # generate i and j among all city indices
-    # draw two random and different indices, w/out replacement
-    i, j = generator.choice(cities, 2, replace=False)
+    ## generate random indices, draw w/out replacement
+    idx = generator.choice(cities, n_idx, replace=False)
 
-    return i, j
+    return idx
+
+
+

@@ -4,28 +4,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from tsp_solvers.tsp import tsp_fun, circle_cities, random_seq, create_city, generate_cities, adjacency
-from tsp_solvers.diagnostic_utils import diagnostic, plot_points, plot_fun
+from tsp_solvers.diagnostic_utils import diagnostic, plot_points, plot_fun, annealing_diagnostic
 
 from tsp_solvers.optimize import solve_tsp
 
-# %%
+# %% TSP
 
-n1 = 40
+n1 = 15
 
-# D1, C1, _ = circle_cities(n1)
-D1, C1 = generate_cities(n1)
+D1, C1, _ = circle_cities(n1)
+# D1, C1 = generate_cities(n1, 20)
 cities1 = create_city(C1)
 
-sol1 = np.append(np.arange(n1), 0)
+# sol1 = np.append(np.arange(n1), 0)
 
 seq1 = random_seq(n1, seed=43)
 # seq2 = random_seq(n1, seed=43)
 # seq3 = random_seq(n1, [3, 2])
 
-adj1 = adjacency(seq1)
+plot_points(C1, seq1)
+
+# adj1 = adjacency(seq1)
 # adj2 = adjacency(seq2)
 
-dist1 = tsp_fun(seq1, D1)
+# dist1 = tsp_fun(seq1, D1)
 # dist2 = tsp_fun(seq2, D2)
 
 # %% refactored
@@ -35,18 +37,17 @@ res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=800))
 res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev", options=dict(maxiter=800))
 
 
-res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(local_search="swap", ls_maxiter=300))
+# res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
+#     options=dict(local_search="swap", ls_maxiter=300))
 
 res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
     options=dict(nsim=500, local_search="swap-rev",
-                 local_search_options=dict(maxiter=200)))
+                 local_search_options=dict(maxiter=300)))
 
 
 # res_ann_swap = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
 #     options=dict(perturbation="swap", maxiter_inner=300))
-res_ann_swap_rev = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
-    options=dict(perturbation="swap-rev", maxiter_outer=800, maxiter_inner=40))
+
 
 
 # brute = solve_tsp(tsp_fun, D1, "brute-force", options=dict(n_jobs=4))
@@ -59,10 +60,10 @@ print("% ---- %")
 diagnostic(C1, res_swap_rev)
 print(res_swap_rev.solver)
 print(res_swap_rev.fun)
-print("% ---- %")
-diagnostic(C1, res_multi_swap)
-print(res_multi_swap.solver)
-print(res_multi_swap.fun)
+# print("% ---- %")
+# diagnostic(C1, res_multi_swap)
+# print(res_multi_swap.solver)
+# print(res_multi_swap.fun)
 print("% ---- %")
 diagnostic(C1, res_multi_swap_rev)
 print(res_multi_swap_rev.solver)
@@ -72,13 +73,45 @@ print(res_multi_swap_rev.fun)
 # # plot_fun(res_ann_swap.temp_seq)
 # print(res_ann_swap.solver)
 # print(res_ann_swap.fun)
-print("% ---- %")
-diagnostic(C1, res_ann_swap_rev)
-print(res_ann_swap_rev.solver)
-print(res_ann_swap_rev.fun)
+# print("% ---- %")
+# diagnostic(C1, res_ann_swap_rev)
+# print(res_ann_swap_rev.solver)
+# print(res_ann_swap_rev.fun)
 # print("% ---- %")
 # plot_points(C1, sol1)
 
+# %%% multi-start
+
+res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
+    options=dict(nsim=500, local_search="swap-rev",
+                 local_search_options=dict(maxiter=200)))
+
+diagnostic(C1, res_multi_swap_rev)
+# print(res_multi_swap_rev.runtime)
+
+# %%% simulated annealing
+
+res_ann_swap_rev = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
+    options=dict(perturbation="swap-rev", maxiter_outer=1000, maxiter_inner=500,
+                 cooling_rate=0.99))
+
+annealing_diagnostic(C1, res_ann_swap_rev)
+
+# %% multi-start with sim annealing
+res_multi_ann = solve_tsp(tsp_fun, D1, solver="multi-start",
+    options=dict(nsim=5, base_alg="local-search+annealing", local_search="swap-rev", n_jobs=6,
+    local_search_options=dict(maxiter=100),
+    annealing_options=dict(maxiter_outer=500, maxiter_inner=200)))
+
+diagnostic(C1, res_multi_ann)
+
+# %%%
+
+# plot_points(C1, seq1)
+# plot_fun(res_ann_swap_rev.fun_acc_seq)
+
+
+# diagnostic(C1, res_ann_swap_rev)
 
 # %% First try
 
@@ -93,7 +126,7 @@ ax1.grid(True, which="both", axis="both")
 
 # Create secondary x-axis
 ax2 = ax1.twinx()
-ax2.plot(50 * 0.985**np.arange(2, 801), label='c_k', color="tab:orange")
+ax2.plot(50 * 0.99**np.arange(2, 801), label='c_k', color="tab:orange")
 # ax2.plot(res_ann_swap_rev.temp_seq[:342])
 # ax2.set_xlabel('exp(y/3)', color='b')
 # ax2.tick_params(axis='x', labelcolor='b')

@@ -8,6 +8,11 @@ def tsp_fun(seq, D):
     # seq: cities sequence
     # D: distance matrix
 
+    ## check soft constraint
+    if not check_constraint(seq):
+
+        raise RuntimeError("Soft constraint not satisfied.")
+
     # compute adjacency matrix
     A = adjacency(seq)
 
@@ -86,26 +91,36 @@ def create_city(coords):
     return cities
 
 
+def distance_matrix(coords):
+
+    ncity = coords.shape[0]
+
+    # empty distance matrix D=(d_ij)
+    D = np.empty((ncity, ncity))
+
+    # compute distances, only for upper triangular part
+    for i in range(ncity):  # take c_i
+        for j in range(i + 1, ncity):  # compute d_ij
+            dist = la.norm(coords[i,:] - coords[j,:])
+            D[i,j] = dist
+            D[j,i] = dist
+
+    return None
+
+
 def generate_cities(ncity, l=10, seed=42):
     # generate random coordinates
     # ncity: total number of cities
 
     rng = np.random.default_rng(seed)
 
-    # cities coordinates c_i=(x,y)
-    # C = rng.uniform(0, l, ncity * 2).reshape((-1, 2))
+    ## cities coordinates c_i=(x,y)
+    x_coords = rng.uniform(-l//2, l//2, ncity)  # x-coordinate
+    y_coords = rng.uniform(-l//2, l//2, ncity)  # y-coordinate
 
-    C = np.empty((ncity, 2))
-    C[:,0] = rng.uniform(-l//2, l//2, ncity)  # x-coordinate
-    C[:,1] = rng.uniform(-l//2, l//2, ncity)  # y-coordinate
+    C = np.column_stack((x_coords, y_coords))
 
-    # empty distance matrix D=(d_ij)
-    D = np.empty((ncity, ncity))
-
-    # compute distances
-    for i in range(ncity):  # take c_i
-        for j in range(ncity):  # compute d_ij
-            D[i,j] = la.norm(C[i,:] - C[j,:])
+    D = distance_matrix(C)
 
     return D, C
 
@@ -128,13 +143,7 @@ def circle_cities(ncity, r=5):
     for i in range(ncity):
         Ccart[i,:] = r * np.array([np.cos(Cpol[i,0]), np.sin(Cpol[i,0])])
 
-    # empty distance matrix D=(d_ij)
-    D = np.empty((ncity, ncity))
-    
-    # compute distances
-    for i in range(ncity):
-        for j in range(ncity):
-            D[i,j] = la.norm(Ccart[i,:] - Ccart[j,:])
+    D = distance_matrix(Ccart)
 
     return D, Ccart, Cpol
 

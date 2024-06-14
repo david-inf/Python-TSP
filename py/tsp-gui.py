@@ -56,8 +56,8 @@ class App:
             multi_start_ls, "Multi-start base")
         ## slider for sim annealing cooling rate
         self.cooling_rate = self.create_slider(
-            "alpha", from_=0.0001, to=0.95, orient=tk.HORIZONTAL,
-            resolution=0.0001)
+            "alpha", from_=0.8, to=0.999, orient=tk.HORIZONTAL,
+            resolution=0.001)
         ## button for solve TSP and draw solution path
         self.solve_butt = self.create_button(
             "Run solver", lambda: self.solve(

@@ -27,23 +27,24 @@ def solve_brute_force(fun, D, seq0=None, random_state=42, n_jobs=2):
     _start = time.time()
     # warnflag = 0
 
-
     with Parallel(n_jobs=n_jobs, backend="loky") as parallel:
 
         results = parallel(
-            delayed(_check_seq)(fun, D, seq0, partial_seq)
+            delayed(_permute_seq)(fun, D, seq0, partial_seq)
             for partial_seq in permutations(middle))
 
     results.sort(reverse=True, key=lambda x: x[0])
 
+    _end = time.time()
+
     res = OptimizeResult(fun=results[0][0], x=results[0][1],
                          solver="brute-force",
-                         runtime=(time.time() - _start))
+                         runtime=(_end - _start))
 
     return res
 
 
-def _check_seq(fun, D, seq0, partial_seq):
+def _permute_seq(fun, D, seq0, partial_seq):
 
     # new permutation
     seq0[1:-1] = np.array(partial_seq)
