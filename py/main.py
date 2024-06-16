@@ -3,8 +3,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from tsp_solvers.tsp import tsp_fun, circle_cities, random_seq, create_city, generate_cities, adjacency
-from tsp_solvers.diagnostic_utils import diagnostic, plot_points, plot_fun, annealing_diagnostic
+from tsp_solvers.tsp import (
+    tsp_fun, circle_cities, random_seq, create_city, generate_cities, adjacency)
+from tsp_solvers.diagnostic_utils import (
+    diagnostic, plot_points, plot_fun, annealing_diagnostic, local_search_animation,
+    annealing_animation)
 
 from tsp_solvers.optimize import solve_tsp
 
@@ -22,7 +25,7 @@ seq1 = random_seq(n1, seed=43)
 # seq2 = random_seq(n1, seed=43)
 # seq3 = random_seq(n1, [3, 2])
 
-plot_points(C1, seq1)
+# plot_points(C1, seq1)
 
 # adj1 = adjacency(seq1)
 # adj2 = adjacency(seq2)
@@ -34,7 +37,7 @@ plot_points(C1, seq1)
 
 res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=800))
 
-res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev", options=dict(maxiter=800))
+res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev", options=dict(maxiter=100))
 
 
 # res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
@@ -80,6 +83,17 @@ print(res_multi_swap_rev.fun)
 # print("% ---- %")
 # plot_points(C1, sol1)
 
+# %%% animation
+
+local_search_animation(res_swap_rev, C1, "local_search-reverse.mp4")
+diagnostic(C1, res_swap_rev)
+
+local_search_animation(res_multi_swap_rev, C1, "multi_start.mp4")
+
+# if __name__ == "__main__":
+
+    # local_search_animation(history, C1)
+
 # %%% multi-start
 
 res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
@@ -96,6 +110,12 @@ res_ann_swap_rev = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
                  cooling_rate=0.99))
 
 annealing_diagnostic(C1, res_ann_swap_rev)
+
+# %%%%
+
+local_search_animation(res_ann_swap_rev, C1, "annealing.mp4")
+
+annealing_animation(res_ann_swap_rev, C1, "annealing.mp4")
 
 # %% multi-start with sim annealing
 res_multi_ann = solve_tsp(tsp_fun, D1, solver="multi-start",

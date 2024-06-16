@@ -32,9 +32,10 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
     result : OptimizeResult
     """
 
-    ncity = D.shape[0]               # number of cities in the path
-    f_seq = np.empty(maxiter + 1)    # objective function sequence
-    time_seq = np.zeros_like(f_seq)  # runtime for each iteration
+    ncity = D.shape[0]                      # number of cities in the path
+    f_seq = np.empty(maxiter + 1)           # objective function sequence
+    time_seq = np.zeros_like(f_seq)         # runtime for each iteration
+    x_seq = np.empty((ncity+1, maxiter+1), dtype=np.int32)  # best solution sequence
 
     ## seed for initial guess and swap routines
     _rng = np.random.default_rng(random_state)
@@ -48,6 +49,7 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
 
     f_seq[0] = best_f
     time_seq[0] = 0.
+    x_seq[:, 0] = best_seq
     _start = time.time()
     # warnflag = 0
 
@@ -69,10 +71,11 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
         k += 1
 
         f_seq[k] = best_f
+        x_seq[:, k] = best_seq
         time_seq[k] = time.time() - _start
 
     result = OptimizeResult(fun=best_f, x=best_seq, nit=k, solver=solver,
-                            runtime=time_seq[k], fun_seq=f_seq)
+                            runtime=time_seq[k], x_seq=x_seq, fun_seq=f_seq)
 
     return result
 

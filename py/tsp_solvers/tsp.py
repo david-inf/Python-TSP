@@ -96,7 +96,7 @@ def distance_matrix(coords):
     ncity = coords.shape[0]
 
     # empty distance matrix D=(d_ij)
-    D = np.empty((ncity, ncity))
+    D = np.zeros((ncity, ncity))
 
     # compute distances, only for upper triangular part
     for i in range(ncity):  # take c_i
@@ -105,7 +105,7 @@ def distance_matrix(coords):
             D[i,j] = dist
             D[j,i] = dist
 
-    return None
+    return D
 
 
 def generate_cities(ncity, l=10, seed=42):
