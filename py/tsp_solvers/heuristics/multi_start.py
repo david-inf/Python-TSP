@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+Multi start metaheuristics module
+
+"""
 
 import time
 import numpy as np
 from scipy.optimize import OptimizeResult
 from joblib import Parallel, delayed
-
-# from tsp_solvers.heuristics.local_search import _two_exchange
-# from tsp_solvers.heuristics.simulated_annealing import _annealing
 
 from tsp_solvers.heuristics.local_search import solve_swap
 from tsp_solvers.heuristics.simulated_annealing import solve_simulated_annealing
@@ -43,32 +44,46 @@ def solve_multi_start(fun, D, nsim=500, base_alg="local-search",
     result : OptimizeResult
     """
 
-    if base_alg not in ("local-search", "sim-annealing", "local-search+annealing"):
+    _base_algs = ("local-search", "single-local-search", "sim-annealing",
+                  "local-search+annealing")
 
+    if base_alg not in _base_algs:
+        # check base algorithm for multi-start
         raise RuntimeError("Unknown base algorithm.")
 
     _rng = np.random.default_rng(random_state)  # initial guess Generator
 
+    if base_alg == "single-local-search":
+        seq0 = rand_init_guess(D.shape[0], _rng)
+    else:
+        seq0 = None
+
     _start = time.time()
 
+    ## run parallel simulations
     with Parallel(n_jobs=n_jobs, backend="loky") as parallel:
 
         results = parallel(
-            delayed(_inner_algorithm)(fun, D, base_alg, local_search, _rng,
-                                 local_search_options, annealing_options)
+            delayed(_inner_algorithm)(
+                fun, D, base_alg, local_search, _rng,
+                local_search_options, annealing_options, seq0)
             for _ in range(nsim))
-
-    results.sort(reverse=True, key=lambda x: x.fun)
 
     _end = time.time()
 
+    ## sort list of OptimizeResult for each nsim
+    results.sort(reverse=True, key=lambda x: x.fun)
+
+    ## metrics sequences
     f_seq = np.array([opt.fun for opt in results])
-    x_seq = np.column_stack([opt.x for opt in results])
+    x_seq = np.row_stack([opt.x for opt in results])
+
     _solver = "multi-start on " + base_alg + " with " + local_search
-    res = OptimizeResult(fun=results[0].fun, x=results[0].x, nit=nsim,
-                         x_seq=x_seq,
+
+    res = OptimizeResult(fun=results[-1].fun, x=results[-1].x, nit=nsim,
+                         solver=_solver, x_seq=x_seq,
                          local_search=local_search_options,
-                         annealing=annealing_options, solver=_solver,
+                         annealing=annealing_options,
                          runtime=(_end - _start), fun_seq=f_seq)
 
     return res
@@ -76,18 +91,29 @@ def solve_multi_start(fun, D, nsim=500, base_alg="local-search",
 
 # function to be parallelized
 def _inner_algorithm(fun, D, base_alg, local_search, generator,
-                     local_search_options, annealing_options):
+                     local_search_options, annealing_options, seq0=None):
 
-    if local_search_options == None:
+    _base_algs = ("local-search", "single-local-search", "sim-annealing",
+                  "local-search+annealing")
+    if base_alg not in _base_algs:
+        # check base algorithm for multi-start
+        raise RuntimeError("Unknown base algorithm.")
+
+    if local_search_options is None:
         local_search_options = {}
-    if annealing_options == None:
+    if annealing_options is None:
         annealing_options = {}
 
     ## generate random initial guess
-    ncity = D.shape[0]
-    seqt = rand_init_guess(ncity, generator)
+    if seq0 is None:
+        seqt = rand_init_guess(D.shape[0], generator)
 
-    if base_alg == "local-search":
+    else:
+        seqt = seq0
+
+    res_sim = None
+
+    if base_alg in ("local-search", "single-local-search"):
 
         ## local search
         res_sim = solve_swap(

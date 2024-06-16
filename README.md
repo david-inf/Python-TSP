@@ -32,4 +32,4 @@ Algorithms:
 
 ## Examples
 
-screen recordings
+![local search](./py/anims/local_search-rev.mp4)

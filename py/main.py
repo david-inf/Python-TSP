@@ -13,11 +13,11 @@ from tsp_solvers.optimize import solve_tsp
 
 # %% TSP
 
-n1 = 15
+n1 = 30
 
-D1, C1, _ = circle_cities(n1)
-# D1, C1 = generate_cities(n1, 20)
-cities1 = create_city(C1)
+D1, C1 = circle_cities(n1)
+D1, C1 = generate_cities(n1, 20)
+# cities1 = create_city(C1)
 
 # sol1 = np.append(np.arange(n1), 0)
 
@@ -35,17 +35,23 @@ seq1 = random_seq(n1, seed=43)
 
 # %% refactored
 
-res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=800))
+res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=300))
 
-res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev", options=dict(maxiter=100))
+res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev",
+                          options=dict(maxiter=500, random_state=None))
 
 
 # res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
 #     options=dict(local_search="swap", ls_maxiter=300))
 
 res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=500, local_search="swap-rev",
-                 local_search_options=dict(maxiter=300)))
+    options=dict(nsim=1200, local_search="swap-rev",
+                  local_search_options=dict(maxiter=500, random_state=None)))
+
+# multi-start but one solution and different perturbations each time
+res_multi_seed = solve_tsp(tsp_fun, D1, solver="multi-start",
+    options=dict(nsim=1400, base_alg="single-local-search", local_search="swap-rev",
+        local_search_options=dict(maxiter=500, random_state=None)))
 
 
 # res_ann_swap = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
@@ -69,6 +75,7 @@ print(res_swap_rev.fun)
 # print(res_multi_swap.fun)
 print("% ---- %")
 diagnostic(C1, res_multi_swap_rev)
+diagnostic(C1, res_multi_seed)
 print(res_multi_swap_rev.solver)
 print(res_multi_swap_rev.fun)
 # print("% ---- %")
@@ -85,7 +92,7 @@ print(res_multi_swap_rev.fun)
 
 # %%% animation
 
-local_search_animation(res_swap_rev, C1, "local_search-reverse.mp4")
+local_search_animation(res_swap_rev, C1, "local_search.mp4")
 diagnostic(C1, res_swap_rev)
 
 local_search_animation(res_multi_swap_rev, C1, "multi_start.mp4")

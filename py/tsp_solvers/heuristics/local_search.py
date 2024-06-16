@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""
+Local search  module
+
+- `swap`
+- `reverse`
+
+"""
 
 import time
 import numpy as np
@@ -8,7 +15,7 @@ from tsp_solvers import rand_init_guess
 
 
 ## local search swap nodes
-def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
+def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
     """
     2-exchange local search.
 
@@ -32,52 +39,56 @@ def solve_swap(fun, D, seq0=None, solver="swap", maxiter=100, random_state=42):
     result : OptimizeResult
     """
 
-    ncity = D.shape[0]                      # number of cities in the path
-    f_seq = np.empty(maxiter + 1)           # objective function sequence
-    time_seq = np.zeros_like(f_seq)         # runtime for each iteration
-    x_seq = np.empty((ncity+1, maxiter+1), dtype=np.int32)  # best solution sequence
-
     ## seed for initial guess and swap routines
     _rng = np.random.default_rng(random_state)
 
-    if seq0 is None:
+    if x0 is None:
         # generate random hamiltonian cycle [0,...,0]
-        seq0 = rand_init_guess(ncity, _rng)
+        x0 = rand_init_guess(cost.shape[0], _rng)
 
-    best_seq = seq0.copy()  # starting solution, assume City0 in seq0[0]
-    best_f = fun(seq0, D)   # starting objective function
-
-    f_seq[0] = best_f
+    ## allocate and initialize sequences for metrics
+    f_seq = np.empty(maxiter + 1)  # objective function sequence
+    f_seq[0] = fun(x0, cost)
+    time_seq = np.zeros_like(f_seq)  # runtime for each iteration
     time_seq[0] = 0.
-    x_seq[:, 0] = best_seq
-    _start = time.time()
-    # warnflag = 0
+    x_seq = np.empty((maxiter+1, x0.size), dtype=np.int32)  # best solution sequence
+    x_seq[0] = x0  # (N+1) x (maxiter+1)
 
+    ## best values
+    best_x = x0.copy()      # starting solution, assume City0 in seq0[0]
+    best_f = fun(x0, cost)  # starting objective function
+
+    _start = time.time()
     k = 0
 
     while k < maxiter:
 
+        ## explore the neighborhood of the current best solution
+        xk = best_x.copy()
+
         ## 2-exchange procedure, smooth the hard constraint
-        current_seq = _perturbation(solver, best_seq, _rng)
+        xk = _perturbation(solver, xk, _rng)
+        ## compute current objective function
+        fk = fun(xk, cost)
 
-        # compute current objective function
-        current_f = fun(current_seq, D)
+        ## check current solution
+        if fk < f_seq[k]:
+            # if the objective function decreases update best values
+            best_x = xk.copy()  # new sequence
+            best_f = fk         # new best objective function value
 
-        if current_f < best_f:
-            # if the objective function decreases update the sequence
-            best_seq = current_seq  # new sequence
-            best_f = current_f      # new best objective function value
-
+        ## update (next) iteration number
         k += 1
 
+        ## update sequences with values from current iteration
         f_seq[k] = best_f
-        x_seq[:, k] = best_seq
+        x_seq[k] = best_x.copy()
         time_seq[k] = time.time() - _start
 
-    result = OptimizeResult(fun=best_f, x=best_seq, nit=k, solver=solver,
-                            runtime=time_seq[k], x_seq=x_seq, fun_seq=f_seq)
+    res = OptimizeResult(fun=best_f, x=best_x, nit=k, solver=solver,
+                         runtime=time_seq[k], x_seq=x_seq, fun_seq=f_seq)
 
-    return result
+    return res
 
 
 # %% Utils
@@ -103,6 +114,9 @@ def _perturbation(method, current_seq, generator):
     # total number of cities in the sequence
     ncity = current_seq.size - 1
 
+    # ************************#
+    # canonical ensemble
+
     if method == "swap":
 
         # get two indices, i < j or i > j
@@ -113,9 +127,12 @@ def _perturbation(method, current_seq, generator):
     elif method == "swap-rev":
 
         # get two indices s.t. i < j
-        i, j = np.sort(_rand_city_idx(ncity, generator))
+        indices = _rand_city_idx(ncity, generator)
+        i, j = np.sort(indices)
         # reverse indices between the two previously selected
         current_seq[i:j+1] = np.flip(current_seq[i:j+1])
+
+    # ************************#
 
     elif method == "insert":
 
@@ -154,6 +171,3 @@ def _rand_city_idx(ncity, generator, n_idx=2):
     idx = generator.choice(cities, n_idx, replace=False)
 
     return idx
-
-
-

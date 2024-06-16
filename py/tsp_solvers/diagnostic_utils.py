@@ -69,14 +69,16 @@ def diagnostic(coords, opt_res):
     # opt_res: OptimizeResult
 
     fig, axs = plt.subplots(1, 2, layout="constrained")
-    plt.title(opt_res.solver)
+    # plt.title(opt_res.solver)
 
     ## plot graph
     plot_points(coords, opt_res.x, axs[0])
+    axs[0].set_title(f"Solution path\nf(x): {opt_res.fun:.4f}")
 
     ## plot function performance
     fun_seq = opt_res.fun_seq[:opt_res.nit+1]
     plot_fun(fun_seq, ax=axs[1])
+    axs[1].set_title(opt_res.solver)
 
 
 def plot_chi(chi_seq, ax=None):
@@ -136,8 +138,8 @@ def _plot_nodes(coords, ax=None):
 
     ax.scatter(x_coord, y_coord, marker="o", color=colors, s=15)
 
-    # for i in range(coords.shape[0]):
-    #     ax.text(coords[i,0], coords[i,1], f"{i}")
+    for i in range(coords.shape[0]):
+        ax.text(coords[i,0], coords[i,1], f"{i}")
 
     ax.grid(True, which="both", axis="both")
     ax.set_xlabel(r"$x$")
@@ -146,12 +148,8 @@ def _plot_nodes(coords, ax=None):
 
 
 def local_search_animation(opt_res, coords, filename, delay=100):
-    # seq_history: matrix (ncity+1, maxiter)
 
-    # 1500 frames for animation
-    # key_frames_mult = seq_history.size // 1500
-
-    seq_history = opt_res.x_seq
+    seq_history = opt_res.x_seq  # (N+1) x (maxiter+1)
     fun_history = opt_res.fun_seq
 
     fig, axs = plt.subplots(1, 2, layout="constrained")
@@ -174,7 +172,7 @@ def local_search_animation(opt_res, coords, filename, delay=100):
 
     def update(frame):
 
-        path = seq_history[:, frame]
+        path = seq_history[frame]
         f_val = fun_history[frame]
         f_current_seq = fun_history[:frame+1]
 
@@ -191,7 +189,7 @@ def local_search_animation(opt_res, coords, filename, delay=100):
 
 
     ani = animation.FuncAnimation(
-        fig, update, frames=seq_history.shape[1], interval=delay, repeat=False, blit=True)
+        fig, update, frames=seq_history.shape[0], interval=delay, repeat=False, blit=True)
 
     ani.save(filename, writer="ffmpeg", fps=30)
 
