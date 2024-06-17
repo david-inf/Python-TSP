@@ -150,7 +150,7 @@ def _plot_nodes(coords, ax=None):
 def local_search_animation(opt_res, coords, filename, delay=100):
 
     seq_history = opt_res.x_seq  # (N+1) x (maxiter+1)
-    fun_history = opt_res.fun_seq
+    fun_history = opt_res.fun_seq  # (maxiter+1)
 
     fig, axs = plt.subplots(1, 2, layout="constrained")
 
@@ -160,14 +160,17 @@ def local_search_animation(opt_res, coords, filename, delay=100):
     annotation = axs[0].text(0.025, 0.98, '', transform=axs[0].transAxes, va='top')
     axs[0].set_title("Current best path")
 
-    ## draw objective function
-    axs[1].set_xlim(0, fun_history.size)
+    ## objective function
+    axs[1].set_xlim(1, fun_history.size+1)
     axs[1].set_ylim(np.min(fun_history)*0.95, np.max(fun_history)*1.05)
     axs[1].grid(True, which="both", axis="both")
     axs[1].set_xlabel("iterations")
     axs[1].set_ylabel(r"$f(x)$")
     line_fun, = axs[1].plot([], [], lw=2)  # null objective function
     axs[1].set_title("Objective function performance")
+    axs[1].set_xscale("log")
+    axs[1].set_xticks([1, 10, 100])
+    axs[1].set_xticklabels([1, 10, 100])
 
 
     def update(frame):
@@ -183,7 +186,7 @@ def local_search_animation(opt_res, coords, filename, delay=100):
         annotation.set_text(f'f(x): {f_val:.4f}')
 
         ## objective function
-        line_fun.set_data(range(frame+1), f_current_seq)
+        line_fun.set_data(range(1, frame+2), f_current_seq)
 
         return line_path, annotation, line_fun
 
@@ -196,11 +199,11 @@ def local_search_animation(opt_res, coords, filename, delay=100):
 
 def annealing_animation(opt_res, coords, filename, delay=100):
 
-    x_history = opt_res.x_seq
-    f_history = opt_res.fun_seq
-    f_acc_history = opt_res.fun_acc_seq
-    chi_history = opt_res.chi_seq
-    temp_history = opt_res.temp_seq
+    x_history = opt_res.x_seq  # (N+1) x (maxiter+1)
+    f_history = opt_res.fun_seq  # (maxiter+1)
+    f_acc_history = opt_res.fun_acc_seq  # (maxiter+1)
+    chi_history = opt_res.chi_seq  # (maxiter+1)
+    temp_history = opt_res.temp_seq  # (maxiter+1)
 
     fig, axs = plt.subplots(2, 2, layout="constrained")
 
@@ -211,23 +214,17 @@ def annealing_animation(opt_res, coords, filename, delay=100):
     axs[0, 0].set_title("Current best path")
 
     ## draw best and accepted objective function
-    axs[0, 1].set_xlim(0, f_history.size)
+    axs[0, 1].set_xlim(1, f_history.size+1)
     axs[0, 1].set_ylim(np.min(f_history)*0.95, np.max(f_history)*1.05)
     axs[0, 1].grid(True, which="both", axis="both")
     axs[0, 1].set_xlabel("iterations")
     axs[0, 1].set_ylabel(r"$f(x)$")
     line_fun, = axs[0, 1].plot([], [], lw=2)  # null objective function
-    line_fun_acc, = axs[0, 1].plot([], [], lw=2)
+    line_fun_acc, = axs[0, 1].plot([], [], lw=2)  # null accepted obj fun
     axs[0, 1].set_title("Objective function performance")
-    # axs[0].set_xscale("log")
-
-    # iterations = np.arange(1, fun_seq.size + 1)
-    # ax.plot(iterations, fun_seq)
-
-    # ax.set_xlim(1)
-
-    # ax.set_xticks([1, 10, 100])
-    # ax.set_xticklabels([0, 10, 100])
+    axs[0, 1].set_xscale("log")
+    axs[0, 1].set_xticks([1, 10, 100, 1000])
+    axs[0, 1].set_xticklabels([1, 10, 100, 1000])
 
     ## acceptance rate
     axs[1, 0].set_xlim(0, chi_history.size)
@@ -250,7 +247,7 @@ def annealing_animation(opt_res, coords, filename, delay=100):
 
     def update(frame):
 
-        path = x_history[:, frame]
+        path = x_history[frame]
         f_val = f_history[frame]
         f_current_seq = f_history[:frame+1]
         f_acc_current_seq = f_acc_history[:frame+1]
@@ -264,8 +261,8 @@ def annealing_animation(opt_res, coords, filename, delay=100):
         annotation.set_text(f'f(x): {f_val:.4f}')
 
         ## objective function
-        line_fun.set_data(range(frame+1), f_current_seq)
-        line_fun_acc.set_data(range(frame+1), f_acc_current_seq)
+        line_fun.set_data(range(1, frame+2), f_current_seq)
+        line_fun_acc.set_data(range(1, frame+2), f_acc_current_seq)
 
         ## acceptance rate
         line_chi.set_data(range(frame+1), chi_current_seq)
@@ -277,6 +274,6 @@ def annealing_animation(opt_res, coords, filename, delay=100):
 
 
     ani = animation.FuncAnimation(
-        fig, update, frames=x_history.shape[1], interval=delay, repeat=False, blit=True)
+        fig, update, frames=x_history.shape[0], interval=delay, repeat=False, blit=True)
 
     ani.save(filename, writer="ffmpeg", fps=30)

@@ -13,10 +13,10 @@ from tsp_solvers.optimize import solve_tsp
 
 # %% TSP
 
-n1 = 30
+n1 = 40
 
 D1, C1 = circle_cities(n1)
-D1, C1 = generate_cities(n1, 20)
+# D1, C1 = generate_cities(n1, 20)
 # cities1 = create_city(C1)
 
 # sol1 = np.append(np.arange(n1), 0)
@@ -38,7 +38,7 @@ seq1 = random_seq(n1, seed=43)
 res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=300))
 
 res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev",
-                          options=dict(maxiter=500, random_state=None))
+                          options=dict(maxiter=1000, random_state=None))
 
 
 # res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
@@ -92,20 +92,16 @@ print(res_multi_swap_rev.fun)
 
 # %%% animation
 
-local_search_animation(res_swap_rev, C1, "local_search.mp4")
+local_search_animation(res_swap_rev, C1, "local_search-rev.mp4")
 diagnostic(C1, res_swap_rev)
 
 local_search_animation(res_multi_swap_rev, C1, "multi_start.mp4")
 
-# if __name__ == "__main__":
-
-    # local_search_animation(history, C1)
-
 # %%% multi-start
 
 res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=500, local_search="swap-rev",
-                 local_search_options=dict(maxiter=200)))
+    options=dict(nsim=1000, local_search="swap-rev",
+                 local_search_options=dict(maxiter=1000, random_state=None)))
 
 diagnostic(C1, res_multi_swap_rev)
 # print(res_multi_swap_rev.runtime)
@@ -114,15 +110,15 @@ diagnostic(C1, res_multi_swap_rev)
 
 res_ann_swap_rev = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
     options=dict(perturbation="swap-rev", maxiter_outer=1000, maxiter_inner=500,
-                 cooling_rate=0.99))
+                 cooling_rate=0.995))
 
 annealing_diagnostic(C1, res_ann_swap_rev)
 
 # %%%%
 
-local_search_animation(res_ann_swap_rev, C1, "annealing.mp4")
+local_search_animation(res_ann_swap_rev, C1, "sim-annealing.mp4")
 
-annealing_animation(res_ann_swap_rev, C1, "annealing.mp4")
+annealing_animation(res_ann_swap_rev, C1, "sim-annealing-quad.mp4")
 
 # %% multi-start with sim annealing
 res_multi_ann = solve_tsp(tsp_fun, D1, solver="multi-start",

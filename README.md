@@ -13,8 +13,8 @@ Find the shortest possible route that connects all cities:
 **place image with feasible solution**
 
 Perturbation methods:
-- `swap`: draw two random indices {i,j}, swap the corresponding cities in the sequence (canonical ensemble)
-- `reverse`: draw two random indices {i,j} s.t. i < j, reverse the sequence between those two cities (canonical ensemble)
+- `swap`: draw two random indices $\{i,j\}$, swap the corresponding cities in the sequence (canonical ensemble)
+- `reverse`: draw two random indices $\{i,j\}$ s.t. $i < j$, reverse the sequence between those two cities (canonical ensemble)
 - `insert`: 
 
 
@@ -28,8 +28,15 @@ Algorithms:
         - 2-exchange
         - k-exchange??
     - Simulated annealing
-        - Geometric cooling schedule
+        - `reverse` perturbation method
+        - Geometric cooling schedule $T_{k+1}=\alpha T_k$
 
 ## Examples
 
-![local search](./py/anims/local_search-rev.mp4)
+Local search with `reverse` perturbation
+
+<video src="./py/anims/local_search-rev.mp4" width="320" height="240" controls></video>
+
+Simulated Annealing
+
+<video src="./py/anims/sim-annealing.mp4" width="320" height="240" controls></video>

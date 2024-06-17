@@ -33,6 +33,7 @@ def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
         Maximum number of iteraions. The default is 100.
     random_state : int, optional
         Seed for numpy.random.Generator. The default is 42.
+        If None a random perturbation is done every time, so not reproducible.
 
     Returns
     -------
@@ -64,6 +65,7 @@ def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
     while k < maxiter:
 
         ## explore the neighborhood of the current best solution
+        # when a new best solution is found, explore this next neighborhood
         xk = best_x.copy()
 
         ## 2-exchange procedure, smooth the hard constraint
@@ -72,7 +74,7 @@ def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
         fk = fun(xk, cost)
 
         ## check current solution
-        if fk < f_seq[k]:
+        if fk < best_f:
             # if the objective function decreases update best values
             best_x = xk.copy()  # new sequence
             best_f = fk         # new best objective function value

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+Simulated Annealing (SA) module
 
 """
 
@@ -37,7 +38,7 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
     # TODO: consider using joblib with _tune_temp for i range(200)
     while q < 200:
 
-        temp_iter = 100  # iterations for init_temp tuning
+        temp_iter = 100  # (outer) iterations for init_temp tuning
 
         # run sim annealing with current init_temp
         res_temp = _annealing(fun, D, seq0, maxiter_inner, perturbation,
@@ -62,7 +63,7 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
                      maxiter_outer, init_temp, random_state)
 
     res.q = q
-    res.chi_seq = np.insert(res.chi_seq, 0, 1.)
+    res.chi_seq = np.append(res.chi_seq, 0.)  # plotting purposes
 
     return res
 
@@ -94,15 +95,15 @@ def _annealing(fun, cost, x0, maxiter_inner, neighbor_meth, cooling_rate,
     best_f = fun(best_x, cost)  # starting objective value
 
     ## allocate performance sequences
-    chi_seq = np.empty(maxiter_outer)   # acceptance rate
+    chi_seq = np.empty(maxiter_outer)     # acceptance rate
     temp_seq = np.empty(maxiter_outer+1)  # temperature after each epoch
     temp_seq[0] = init_temp
     f_seq = np.empty_like(temp_seq)       # best f(x), local minima sequence
     f_seq[0] = best_f
     f_acc_seq = np.empty_like(f_seq)      # f(x) for accepted steps
     f_acc_seq[0] = best_f
-    x_seq = np.empty((cost.shape[0]+1, maxiter_outer+1), dtype=np.int32)  # best solution sequence
-    x_seq[:, 0] = best_x
+    x_seq = np.empty((maxiter_outer+1, x0.size), dtype=np.int32)  # best solution sequence
+    x_seq[0] = best_x
 
     _start = time.time()
     # _need_to_stop = False
@@ -111,30 +112,34 @@ def _annealing(fun, cost, x0, maxiter_inner, neighbor_meth, cooling_rate,
     # outer loop
     while k < maxiter_outer:
 
-        ## save solution to improve
+        ## save best solution for each outer iteration (for each T_k)
+        # search on its neighborhood, update if a new best one is found
+        # with each inner iterations
         xk = best_x.copy()
-        fk = best_f.copy()
+        fk = best_f
 
-        accepted = 0
+        accepted = 0  # accepted solution by metropolis criterion
 
         ## inner loop, improve fk with transitions
         # consider using joblib
         for _ in range(maxiter_inner):
 
-            ## generate new sequence by perturbing the current one
-            current_x = _perturbation(neighbor_meth, xk, _rng)
+            ## copy and then perturbate inner best solution (for T_k=cost)
+            current_x = xk.copy()
+            current_x = _perturbation(neighbor_meth, current_x, _rng)
             current_f = fun(current_x, cost)
 
             ## check for global improvement
             if current_f < best_f:
                 # update best variables, best_f can only decrease
-                best_x = current_x
+                best_x = current_x.copy()  # new (outer) best solution
                 best_f = current_f
 
             ## Metropolis acceptance rule
             if _metropolis(current_f, fk, temp):
                 # fk can increase according to Metropolis
-                xk, fk = current_x, current_f
+                xk = current_x.copy()  # new inner best solution
+                fk = current_f
                 accepted += 1
 
         ## decrease temperature
@@ -149,7 +154,7 @@ def _annealing(fun, cost, x0, maxiter_inner, neighbor_meth, cooling_rate,
         f_seq[k] = best_f   # update best objective function value
         f_acc_seq[k] = fk   # final accepted f(x)
         temp_seq[k] = temp  # update temperature value
-        x_seq[:, k] = best_x
+        x_seq[k] = best_x
 
         # if temp < init_temp / 1000.:
 
@@ -174,18 +179,18 @@ def _tune_temp():
     return None
 
 
-def _metropolis(ft, fk, temp):
+def _metropolis(current_f, fk, temp):
     """
     Metropolis acceptance rule.
 
     Parameters
     ----------
-    ft : float
-        Current solution.
+    current_f : float
+        Current solution objective function.
     fk : float
-        Previous solution.
+        Best transition solution objective function.
     temp : float
-        Temperature value.
+        Current transition temperature value.
 
     Returns
     -------
@@ -194,15 +199,16 @@ def _metropolis(ft, fk, temp):
 
     criterion = False
 
-    if ft < fk:
+    if current_f < fk:
         # down-hill
         criterion = True
 
     else:
         # up-hill
         rand_unif = random.random()  # in (0,1)
-        criterion = rand_unif < np.exp(-(ft - fk) / temp)
-        
+        delta_energy = current_f - fk  # energy gap, should be >= 0
+        criterion = rand_unif < np.exp(-delta_energy / temp)
+
     return criterion
 
 

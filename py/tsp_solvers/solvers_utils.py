@@ -19,4 +19,3 @@ def rand_init_guess(ncity, generator):
     # seq: order in which the cities are visited
     # seq = [0,...,0]
     return seq
-
