@@ -7,134 +7,172 @@ from tsp_solvers.tsp import (
     tsp_fun, circle_cities, random_seq, create_city, generate_cities, adjacency)
 from tsp_solvers.diagnostic_utils import (
     diagnostic, plot_points, plot_fun, annealing_diagnostic, local_search_animation,
-    annealing_animation)
+    annealing_animation, _plot_nodes)
 
 from tsp_solvers.optimize import solve_tsp
 
-# %% TSP
+plots_dir = "./plots/"
+
+# %% TSP circular
 
 n1 = 40
 
 D1, C1 = circle_cities(n1)
-# D1, C1 = generate_cities(n1, 20)
-# cities1 = create_city(C1)
 
-# sol1 = np.append(np.arange(n1), 0)
+_plot_nodes(C1)
 
-seq1 = random_seq(n1, seed=43)
-# seq2 = random_seq(n1, seed=43)
-# seq3 = random_seq(n1, [3, 2])
+# %%% swap local search
 
-# plot_points(C1, seq1)
+res_circle_swap = solve_tsp(tsp_fun, D1, solver="swap",
+    options=dict(maxiter=1000, random_state=None))
 
-# adj1 = adjacency(seq1)
-# adj2 = adjacency(seq2)
+# %%%%
 
-# dist1 = tsp_fun(seq1, D1)
-# dist2 = tsp_fun(seq2, D2)
+diagnostic(C1, res_circle_swap)
+plt.savefig(plots_dir + "circle-swap.pdf")
 
-# %% refactored
+# %%%%
 
-res_swap = solve_tsp(tsp_fun, D1, solver="swap", options=dict(maxiter=300))
+local_search_animation(res_circle_swap, C1, "circle-swap.mp4")
 
-res_swap_rev = solve_tsp(tsp_fun, D1, solver="swap-rev",
-                          options=dict(maxiter=1000, random_state=None))
+# %%% swap-rev local search
 
+res_circle_swaprev = solve_tsp(tsp_fun, D1, solver="swap-rev",
+    options=dict(maxiter=1000, random_state=None))
 
-# res_multi_swap = solve_tsp(tsp_fun, D1, solver="multi-start",
-#     options=dict(local_search="swap", ls_maxiter=300))
+# %%%%
 
-res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=1200, local_search="swap-rev",
-                  local_search_options=dict(maxiter=500, random_state=None)))
+diagnostic(C1, res_circle_swaprev)
+plt.savefig(plots_dir + "circle-swaprev.pdf")
 
-# multi-start but one solution and different perturbations each time
-res_multi_seed = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=1400, base_alg="single-local-search", local_search="swap-rev",
+# %%%%
+
+local_search_animation(res_circle_swaprev, C1, "circle-swaprev.mp4")
+
+# %%% multi-start for swap-rev
+
+res_circle_multi_swaprev = solve_tsp(tsp_fun, D1, solver="multi-start",
+    options=dict(nsim=1000, local_search="swap-rev",
         local_search_options=dict(maxiter=500, random_state=None)))
 
+# %%%%
 
-# res_ann_swap = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
-#     options=dict(perturbation="swap", maxiter_inner=300))
+diagnostic(C1, res_circle_multi_swaprev)
+plt.savefig(plots_dir + "circle-multi-swaprev.pdf")
 
 
+# %%% simulated annealing with swap-rev
+
+res_circle_ann = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
+    options=dict(perturbation="swap-rev", maxiter_outer=1200, maxiter_inner=800,
+                 cooling_rate=0.995, random_state=None))
+
+# %%%%
+
+diagnostic(C1, res_circle_ann)
+plt.savefig(plots_dir + "circle-annealing.pdf")
+
+annealing_diagnostic(C1, res_circle_ann)
+plt.savefig(plots_dir + "circle-annealing-quad.pdf")
+
+# %%%%
+
+local_search_animation(res_circle_ann, C1, "circle-annealing.mp4")
+
+# %%%%
+
+annealing_animation(res_circle_ann, C1, "circle-annealing-quad.mp4")
+
+# %%% others
+
+# multi-start but one solution and different perturbations each time
+# res_multi_seed = solve_tsp(tsp_fun, D1, solver="multi-start",
+#     options=dict(nsim=1400, base_alg="single-local-search", local_search="swap-rev",
+#         local_search_options=dict(maxiter=500, random_state=None)))
+
+# res_multi_ann = solve_tsp(tsp_fun, D1, solver="multi-start",
+#     options=dict(nsim=5, base_alg="local-search+annealing", local_search="swap-rev", n_jobs=6,
+#     local_search_options=dict(maxiter=100),
+#     annealing_options=dict(maxiter_outer=500, maxiter_inner=200)))
+
+# res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
+#     options=dict(nsim=1000, local_search="swap-rev",
+#                  local_search_options=dict(maxiter=1000, random_state=None)))
 
 # brute = solve_tsp(tsp_fun, D1, "brute-force", options=dict(n_jobs=4))
 # plot_points(C1, brute.x)
 
-diagnostic(C1, res_swap)
-print(res_swap.solver)
-print(res_swap.fun)
-print("% ---- %")
-diagnostic(C1, res_swap_rev)
-print(res_swap_rev.solver)
-print(res_swap_rev.fun)
-# print("% ---- %")
-# diagnostic(C1, res_multi_swap)
-# print(res_multi_swap.solver)
-# print(res_multi_swap.fun)
-print("% ---- %")
-diagnostic(C1, res_multi_swap_rev)
-diagnostic(C1, res_multi_seed)
-print(res_multi_swap_rev.solver)
-print(res_multi_swap_rev.fun)
-# print("% ---- %")
-# diagnostic(C1, res_ann_swap)
-# # plot_fun(res_ann_swap.temp_seq)
-# print(res_ann_swap.solver)
-# print(res_ann_swap.fun)
-# print("% ---- %")
-# diagnostic(C1, res_ann_swap_rev)
-# print(res_ann_swap_rev.solver)
-# print(res_ann_swap_rev.fun)
-# print("% ---- %")
-# plot_points(C1, sol1)
 
-# %%% animation
+# %% TSP random
 
-local_search_animation(res_swap_rev, C1, "local_search-rev.mp4")
-diagnostic(C1, res_swap_rev)
+n2 = 40
 
-local_search_animation(res_multi_swap_rev, C1, "multi_start.mp4")
+D2, C2 = generate_cities(n2, 20)
 
-# %%% multi-start
+# %%% swap local search
 
-res_multi_swap_rev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=1000, local_search="swap-rev",
-                 local_search_options=dict(maxiter=1000, random_state=None)))
-
-diagnostic(C1, res_multi_swap_rev)
-# print(res_multi_swap_rev.runtime)
-
-# %%% simulated annealing
-
-res_ann_swap_rev = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
-    options=dict(perturbation="swap-rev", maxiter_outer=1000, maxiter_inner=500,
-                 cooling_rate=0.995))
-
-annealing_diagnostic(C1, res_ann_swap_rev)
+res_rand_swap = solve_tsp(tsp_fun, D2, solver="swap",
+    options=dict(maxiter=1000, random_state=None))
 
 # %%%%
 
-local_search_animation(res_ann_swap_rev, C1, "sim-annealing.mp4")
+diagnostic(C2, res_rand_swap)
+plt.savefig(plots_dir + "rand-swap.pdf")
 
-annealing_animation(res_ann_swap_rev, C1, "sim-annealing-quad.mp4")
+# %%%%
 
-# %% multi-start with sim annealing
-res_multi_ann = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=5, base_alg="local-search+annealing", local_search="swap-rev", n_jobs=6,
-    local_search_options=dict(maxiter=100),
-    annealing_options=dict(maxiter_outer=500, maxiter_inner=200)))
+local_search_animation(res_rand_swap, C2, "rand-swap.mp4")
 
-diagnostic(C1, res_multi_ann)
+# %%% swap-rev local search
 
-# %%%
+res_rand_swaprev = solve_tsp(tsp_fun, D2, solver="swap-rev",
+    options=dict(maxiter=1000, random_state=None))
 
-# plot_points(C1, seq1)
-# plot_fun(res_ann_swap_rev.fun_acc_seq)
+# %%%%
+
+diagnostic(C2, res_rand_swaprev)
+plt.savefig(plots_dir + "rand-swaprev.pdf")
+
+# %%%%
+
+local_search_animation(res_rand_swaprev, C2, "rand-swaprev.mp4")
+
+# %%% multi-start for swap-rev
+
+res_rand_multi_swaprev = solve_tsp(tsp_fun, D2, solver="multi-start",
+    options=dict(nsim=1000, local_search="swap-rev",
+        local_search_options=dict(maxiter=500, random_state=None)))
+
+# %%%%
+
+diagnostic(C2, res_rand_multi_swaprev)
+plt.savefig(plots_dir + "rand-multi-swaprev.pdf")
 
 
-# diagnostic(C1, res_ann_swap_rev)
+# %%% simulated annealing with swap-rev
+
+res_rand_ann = solve_tsp(tsp_fun, D2, solver="simulated-annealing",
+    options=dict(perturbation="swap-rev", maxiter_outer=1200, maxiter_inner=800,
+                 cooling_rate=0.995, random_state=None))
+
+# %%%%
+
+diagnostic(C2, res_rand_ann)
+plt.savefig(plots_dir + "rand-annealing.pdf")
+
+annealing_diagnostic(C2, res_rand_ann)
+plt.savefig(plots_dir + "rand-annealing-quad.pdf")
+
+# %%%%
+
+local_search_animation(res_rand_ann, C2, "rand-annealing.mp4")
+
+# %%%%
+
+annealing_animation(res_rand_ann, C2, "rand-annealing-quad.mp4")
+
+
+
 
 # %% First try
 

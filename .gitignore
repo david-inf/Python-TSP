@@ -172,6 +172,7 @@ py/datasets/
 py/main.ipynb
 *.t
 *.txt
+*.spydata
 
 
 

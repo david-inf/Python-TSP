@@ -142,6 +142,7 @@ def _perturbation(method, current_seq, generator):
         i = _rand_city_idx(ncity, generator, n_idx=1)[0]  # np.array([i])
         # remove a city from the sequence
         
+    # TODO: add constraints check?
 
     return current_seq
 

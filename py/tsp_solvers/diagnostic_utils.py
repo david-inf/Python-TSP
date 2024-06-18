@@ -20,8 +20,8 @@ def plot_fun(fun_seq, scalex="log", ylab=r"$f(x)$", ax=None):
 
         ax.set_xlim(1)
     
-        ax.set_xticks([1, 10, 100])
-        ax.set_xticklabels([0, 10, 100])
+        # ax.set_xticks([1, 10, 100])
+        # ax.set_xticklabels([0, 10, 100])
 
     else:
         iterations = np.arange(fun_seq.size)
@@ -88,7 +88,7 @@ def plot_chi(chi_seq, ax=None):
         fig, ax = plt.subplots()
 
     iterations = np.arange(1, chi_seq.size + 1)
-    ax.scatter(iterations, chi_seq, s=5)
+    ax.scatter(iterations, chi_seq, s=3)
 
     ax.grid(True, which="both", axis="both")
 
