@@ -47,7 +47,7 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
         # compute acceptance rate
         chi = np.mean(res_temp.chi_seq)
 
-        if chi >= 0.9:
+        if chi >= 0.9:  # too high, low the treshold
             # acceptance rate satisfied
             break
 

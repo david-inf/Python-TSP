@@ -1,0 +1,200 @@
+% !TeX TS-program = pdflatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_GB
+% !TeX root = phys.tex
+\documentclass[10pt,a4paper,fleqn]{article}
+% -------------------------------- %
+%\usepackage{lmodern}
+\usepackage{cfr-lm}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[utf8]{inputenc}
+\usepackage[UKenglish]{babel}
+%\hyphenation{}
+\usepackage{microtype}
+\usepackage{indentfirst}
+\usepackage[heightrounded]{geometry}
+\usepackage{lipsum}
+% -------------------------------- %
+% Math
+% -------------------------------- %
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+% -------------------------------- %
+\newcommand{\numberset}{\mathbb}
+%\newcommand{\N}{\numberset{N}}
+\newcommand{\R}{\numberset{R}}
+% -------------------------------- %
+\renewcommand{\epsilon}{\varepsilon}
+%\renewcommand{\theta}{\vartheta}
+%\renewcommand{\rho}{\varrho}
+\renewcommand{\phi}{\varphi}
+% -------------------------------- %
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norma}{\lVert}{\rVert}
+\DeclarePairedDelimiter{\set}{\{}{\}}
+% -------------------------------- %
+\DeclareMathOperator{\sign}{sign}
+%\DeclareMathOperator{\Realpart}{Re}
+%\renewcommand{\Re}{\Realpart}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+% -------------------------------- %
+% Definitions
+\theoremstyle{definition}
+\newtheorem{defs}{Definition}
+%\newtheorem{propts}{Property}
+% Theorems
+%\theoremstyle{plain}
+%\newtheorem{thm}{Theorem}
+%\newtheorem{cor}[thm]{Corollary}
+%\newtheorem{prop}{Proposition}
+%\newtheorem{lem}[thm]{Lemma}
+%\renewcommand{\qedsymbol}{$\blacksquare$}
+% Remarks
+%\theoremstyle{remark}
+%\newtheorem{rmk}{Remark}
+% -------------------------------- %
+% Numbers
+% -------------------------------- %
+\usepackage{siunitx}
+\sisetup{%
+	output-decimal-marker={.},group-separator={\,},%
+	%	round-mode=places,round-precision=6,%
+	table-parse-only,table-number-alignment=center%
+}
+% -------------------------------- %
+% Tikz and colors
+% -------------------------------- %
+\usepackage{pgfplots} % + tikz
+%\pgfplotsset{/pgf/number format/use comma,compat=newest}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{calc, topaths}
+%\usepackage{tikz} % + graphicx,keyval,xcolor
+%\definecolor{Maroon}{cmyk}{0,0.87,0.68,0.32}
+\definecolor{RoyalBlue}{cmyk}{1,0.50,0,0}
+%\definecolor{halfgray}{gray}{0.55}
+\definecolor{webgreen}{rgb}{0,0.5,0}
+\definecolor{webbrown}{rgb}{0.6,0,0}
+\definecolor{lightergray}{gray}{0.99}
+
+\tikzstyle{treenode} = [draw,circle,minimum width=0.6cm,font=\footnotesize,text centered,
+inner sep=1.5pt,outer sep=0pt]
+\tikzstyle{graphnode} = [draw,circle,font=\small,minimum width=1.5em,inner sep=0pt,outer sep=0pt,fill=blue!20]
+% -------------------------------- %
+% Floating objects
+% -------------------------------- %
+\usepackage{booktabs}
+\usepackage{tabularx}
+%\usepackage{multirow}
+\graphicspath{{./Figures/}, {../py/plots/}}
+%\usepackage{subfig}
+%\usepackage{wrapfig}
+\usepackage{caption}
+\captionsetup{format=hang,labelsep=colon,font={small,rm},labelfont={sf,bf}}
+%\captionsetup[table]{skip=0.2\medskipamount,position=top}
+%\captionsetup[figure]{position=bottom}
+\usepackage{flafter}
+\usepackage[english,nospace]{varioref}
+%\usepackage{enumitem}
+% -------------------------------- %
+% Code
+% -------------------------------- %
+%%% ToDo: get the 4everyone
+\usepackage[ruled,linesnumbered]{algorithm2e}
+\SetNlSty{texttt}{}{}
+\SetKw{Or}{or}
+\SetKw{And}{and}
+\SetKw{Not}{not}
+% -------------------------------- %
+% Miscellaneous
+% -------------------------------- %
+\interfootnotelinepenalty=10000
+\dimen\footins=2.5cm
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+% -------------------------------- %
+% My stuff
+% -------------------------------- %
+\newcommand{\myTitle}{Travelling Salesman Problem}
+\newcommand{\mySubtitle}{}
+\newcommand{\mySubject}{Statistical physics and complex systems final project}
+\newcommand{\myName}{David Nardi}
+\newcommand{\myNameShort}{D. Nardi}
+\newcommand{\mySummary}{MSc in Artificial Intelligence}
+\newcommand{\myMail}{david.nardi@edu.unifi.it}
+\newcommand{\myUrl}{https://github.com/david-inf/Python-TSP}
+
+\newcommand{\omissis}{[\textellipsis\unkern]}
+\newcommand{\mail}[1]{\href{mailto:#1}{\texttt{#1}}}
+\newcommand{\inToc}[1]%
+	{\addcontentsline{toc}{section}{\texorpdfstring{\protect\numberline{}#1}{#1}}}
+% -------------------------------- %
+\title{\myTitle}
+\author{\myName\\ \mySummary\\ \mail{\myMail}\\ \url{\myUrl}}
+\date{June 2024}
+%\date{2024, June}
+% -------------------------------- %
+% Page styles
+% -------------------------------- %
+\usepackage{titleps}
+\newpagestyle{main}{% oneside mainmatter
+	\sethead[][][]%
+	{\slshape\myNameShort}{}{\slshape\myTitle}%
+	\setfoot[][][]%
+	{}{\thepage}{}}
+\newpagestyle{myplain}{% oneside mainmatter
+	\sethead[][][]%
+	{\slshape\myNameShort}{}{\thepage}%
+	\setfoot[][][]%
+	{}{}{}}
+\usepackage[strict]{changepage}
+% -------------------------------- %
+% Bibliography
+% -------------------------------- %
+% Activate bibliography when you are ready
+%\usepackage[autostyle,italian=guillemets,babel]{csquotes}
+%\usepackage[backend=biber,useprefix,style=ieee,backref,hyperref,defernumbers=true]{biblatex}
+%\usepackage[backend=biber,useprefix,style=authoryear-comp,hyperref,defernumbers=true]{biblatex}
+%\addbibresource{} % create Db
+% -------------------------------- %
+\usepackage{hyperref}
+\hypersetup{%
+	colorlinks,urlcolor=webbrown,linkcolor=RoyalBlue,citecolor=webgreen,%
+	linktocpage,pdfstartpage=1,bookmarksnumbered,bookmarksopen,bookmarksopenlevel=2,%
+	pdftitle={\myTitle},pdfauthor={\myName},pdfsubject={\mySubject}%
+}
+% -------------------------------- %
+%\usepackage{showframe}
+\begin{document}
+\frenchspacing
+% ************************************************************************************* %
+% FRONTMATTER
+% ************************************************************************************* %
+\cleardoublepage
+\pdfbookmark[1]{Title page}{fronte}
+\maketitle
+
+\begin{abstract}
+With this work we tackle the Travelling Salesman Problem (TSP) using few known algorithms. We start with two local search approaches that swap the edges of the cycle, once we saw that the local searches get trapped in local minima we moved forward to a multi-start meta-heuristic for each local search. Simulated annealing is then tested using a routine to initialize the temperature parameter.
+
+Results show that\dots
+
+Python implementation is available at \href{\myUrl}{this} GitHub repo.
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents\cleardoublepage
+\pagestyle{main}
+% ************************************************************************************* %
+% MAINMATTER %
+% ************************************************************************************* %
+\input{./Sections/intro.tex}
+% ************************************************************************************* %
+% BACKMATTER %
+% ************************************************************************************* %
+%\phantomsection
+%\inToc{\refname}
+%\printbibliography
+\end{document}
