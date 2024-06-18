@@ -1,40 +1,12 @@
 % !TeX spellcheck = en_GB
-
-ToC
-Modelling the TSP
-\begin{enumerate}
-	\item Ops perspective
-	\item Smoothing the hard constraint, the pragmatic perspective
-\end{enumerate}
-Tryna solve the TSP
-\begin{enumerate}
-	\item Local search
-	\begin{itemize}
-		\item \texttt{swap}
-		\item \texttt{swap-rev} or \texttt{reverse}
-	\end{itemize}
-	\item Simulated annealing
-	\item Multi-start
-\end{enumerate}
-Results
-\begin{itemize}
-	\item Convergence analysis and other diagnostics
-	\item Energy view using multi-start
-	\item What's next? Simulated tempering (SA with reheating), genetics algorithms
-\end{itemize}
-References
-\begin{itemize}
-	\item Collega di Pisa? Quelli che trovavo su Medium? Paper trovati per caso?
-\end{itemize}
-
 % ***************************************************** %
 \section{Modelling the travelling salesman problem}\label{sc:tsp}
 % ***************************************************** %
 
 Given an undirected (weighted) and complete graph $G=(V,E)$, where the set of all nodes $\abs{V}=N$ and the set of all edges $\set{i,j}$ is $\abs{E}=N(N-1)/2$ and their relative weight $c_{ij}>0$. an Hamiltonian cycle is a cycle which touches every node in $V$ once and only once, an Hamiltonian cycle might not exist.
 
-% TODO: add all possible edges
-We consider the two following layouts with all possible edges\par\smallskip
+We consider the two following layouts with all possible edges
+
 \begin{center}
 	\begin{minipage}{0.4\textwidth}
 		\newcount\mycount
@@ -47,35 +19,39 @@ We consider the two following layouts with all possible edges\par\smallskip
 			\foreach \i in {1,2,...,\n}{%
 				\node[graphnode] (\i) at ({-360/\n * (1 - \i)}:\radius) {\i};
 			}
-%			\foreach \number in {1,...,15}{
-%				\mycount=\number
-%				\advance\mycount by 1
-%				\foreach \numbera in {\the\mycount,...,16}{
-%					\path ($16-\number$) edge[->,bend right=3] ($16-\numbera$) edge[<-,bend
-%					left=3] ($16-\numbera$);
-%				}
-%			}
-%			\foreach \i in {1,2,...,\n-1}{%
-%				\mycount=\i
-%				\advance\mycount by 1
-%				\foreach \j in {\the\mycount,...,\n}{%
-%%					\draw[->] ($\n-\i$) to ($\n-\j$);
-%					\path ()
-%				}
-%			}
+
+			\def \m {7}
+			\foreach \i in {1,2,...,\m}{%
+				\mycount=\i
+				\advance\mycount by 1
+				\foreach \j in {\the\mycount,...,\n}{%
+					\draw[-,very thin,gray] (\i) to (\j);
+				}
+			}
 		\end{tikzpicture}%\captionof{figure}{Circular layout}
 	\end{minipage}\quad
 	\begin{minipage}{0.4\textwidth}
+		\newcount\mycount
 		\begin{tikzpicture}
 			\draw [help lines,pink] (-2.5,-2.5) grid (2.5,2.5);% \node[circle,draw,fill=red] at (0,0) {};
 			
-			\foreach \i/\j in {(1.09582419,-1.48754547)/1, (-0.24448624,-0.19845625)/2, (1.43439168,-0.5168079)/3, (0.78947212,1.70705996)/4, (-1.62329061,0.57546048)/5, (1.90248941,1.29104645)/6, (1.04455881,-0.2263432)/7, (1.14425722,-1.09104511)/8}{%
-				\node[graphnode] at \i {\j};
+			\foreach \i/\j in {(0.4,-1.6)/1, (-0.24448624,-0.19845625)/2, (1.8,-0.5168079)/3, (0.78947212,1.70705996)/4, (-1.62329061,0.57546048)/5, (1.90248941,1.29104645)/6, (1.04455881,-0.2263432)/7, (1.14425722,-1.09104511)/8}{%
+				\node[graphnode] (\j) at \i {\j};
+			}
+
+			\def \n {8}
+			\def \m {7}
+			\foreach \i in {1,2,...,\m}{%
+				\mycount=\i
+				\advance\mycount by 1
+				\foreach \j in {\the\mycount,...,\n}{%
+					\draw[-,very thin,gray] (\i) to (\j);
+				}
 			}
 		\end{tikzpicture}%\captionof{figure}{Random layout}
 	\end{minipage}
 \end{center}
-on the left, a circular graph, for which we know that the optimal solution is a circular path; on the right each node is in a random position, so we don't know exactly the optimal solution.
+on the left, a circular graph, for which we know that the optimal solution is a circular path; on the right each node is in a random position, so we don't know exactly the optimal solution, that is \numlist{1;2;3;4;5;6;7;8} but the same reversed too $f(\bar{x}_1)=f(\bar{x}_2)$. % further discussion in the energy view section
 
 We constraint the Hamiltonian cycle to start with the first node 1, so the total number of possible cycles reduces to $(N-1)!$.
 
@@ -94,23 +70,25 @@ x_{ij}=
 	0 & \text{otherwise}
 \end{cases}
 \]
-hence the objective function si the sum of all costs associated with the edges in the cycle. This is the binary constraint on variables.
+hence the objective function si the sum of all costs associated with the edges in the cycle. This is the binary constraint on variables. Since a feasible solution is a cycle, we must impose the constraint that each node has one incoming and one outgoing edge
 
-Since a feasible solution is a cycle, we must impose the constraint that each node has one incoming and one outgoing edge\par
 \begin{center}
 	\begin{tikzpicture}
 		\draw [help lines,pink] (-2.5,-1.25) grid (2.5,1.25);
 
-		\node[graphnode,fill=white,font=\footnotesize] (h) at (-1.2,-0.8) {$h$};
+		\node[graphnode,fill=white,font=\footnotesize] (h) at (-1.2,-0.6) {$h$};
 		\node[graphnode,font=\normalsize] (i) at (0,0.5) {$i$};
 		\node[graphnode,fill=white,font=\footnotesize] (k) at (1.5,0.1) {$k$};
-		
+
+%		\draw[->] ($(h)+(15:-0.7)$) -- (h);
 		\draw[->,thick] (h) -- (i); \draw[->,thick] (i) -- (k);
+%		\draw[->] (k) -- ($(k)+(-60:0.7)$);
 	\end{tikzpicture}
 \end{center}
 that is the \emph{cycle covering} constraint.
 
-Using only this constraint can result in a solution with sub-tours, so we add a constraint for connecting all possible sub-tours\par\medskip
+Using only this constraint can result in a solution with sub-tours, so we add a constraint for connecting all possible sub-tours
+
 \begin{center}
 	\begin{minipage}{0.32\textwidth}
 		\begin{tikzpicture}
@@ -132,7 +110,7 @@ Using only this constraint can result in a solution with sub-tours, so we add a 
 				%	}
 		\end{tikzpicture}
 	\end{minipage}%
-	\quad%
+	\qquad%
 	\begin{tikzpicture}
 		\draw[-latex,ultra thick] (-0.4,0) -- (0.25,0);
 	\end{tikzpicture}%
@@ -149,7 +127,7 @@ Using only this constraint can result in a solution with sub-tours, so we add a 
 		\end{tikzpicture}
 	\end{minipage}%\quad\quad%$\Leftarrow$\quad
 \end{center}
-from a subset $S$ there must be at least an edge to the complementary set $V\setminus S$, the \emph{connection} constraint, that is the \emph{hard} constraint.
+from a subset $S$ there must be at least an edge to the complementary set $V\setminus S$, the \emph{connection} constraint, that is the \emph{hard} constraint of the optimization problem.\par\medskip
 
 The resulting optimization problem will be
 \begin{equation}\label{eq:tsp-prob}
@@ -194,27 +172,6 @@ that is a symmetric matrix, whether an edge is in the cycle or not, the variable
 %\end{align*}
 %\end{equation}
 
-% TODO: consider summarizing with a table
-What kind of algorithms?
-\begin{itemize}
-	\item heuristics
-	\item meta-heuristics
-\end{itemize}
-
-Which algorithms?
-\begin{itemize}
-	\item Brute-force
-	\begin{itemize}
-		\item Swap indices
-		\item Swap indices and reverse middle indices
-		\item Check all permutations
-	\end{itemize}
-	\item Meta-heuristics
-	\begin{itemize}
-		\item Multi-start (GRASP)
-		\item Simulated Annealing (SA)
-	\end{itemize}
-\end{itemize}
 
 %\begin{figure}
 %\centering
@@ -243,142 +200,52 @@ Which algorithms?
 \subsection{Smoothing the hard constraint}
 % ***************************************************** %
 
-% TODO: how to satisfy the hard constraint within the algorithms
+Each one of the algorithms considered uses of a starting solution $x^0$ and then performs a perturbation on that solution. We can smooth the hard constraint by keeping this solution each time and performing permutations of the nodes so that the new sequence is still a Hamiltonian cycle, hence a new point.
+
+Here we have used two different methods, figure~\vref{fig:perturbations}, that randomly draw two different nodes given a solution $x^k$:
+\begin{itemize}
+	\item \texttt{swap}: given the sequence, swap node $i$ position with node $j$, figure~\ref{subfig:swap};
+	\item \texttt{reverse}: reverse the nodes between $i$ and $j$ inclusive, figure~\ref{subfig:reverse}
+\end{itemize}
 
 
-
-
-
-\cleardoublepage
-% ***************************************************** %
-\subsection{Local search}\label{subsc:local-search}
-% ***************************************************** %
-
-The idea behind this class of algorithms is simple: given a feasible solution, there might be some other similar feasible solutions with lower objective function value. So the idea is to optimize the objective function by exploring the neighborhood of the current point in the solution space.
-
-The local search starts with a feasible solution randomly drawn in the feasible set. A generation mechanism is then successively applied in order to find a better solution, in terms of the objective function value, by exploring the neighborhood of the current solution.
-
-The algorithm ends when no improvement can be found, and the current solution is considered as the approximate solution of the optimization problem.
-
-%\begin{algorithm}\caption{Local search framework}
-%\KwIn{$x^0$}
-%$k\gets 0$\;
-%\While{$\sigma(x^k)\neq x^k$}{%
-	%	$\sigma(x^k)\gets\argmin_yc(y)\mid y\in I(x^k)$\;
-	%	$x^{k+1}\gets\sigma(x^k)$\;
-	%}
-%\end{algorithm}
-
-\begin{algorithm}\caption{Local search framework}\label{alg:local-search}
-	\KwIn{$f$, $D$, $x^0$}
-	$x^\ast\gets x^0$\;
-	$k\gets 0$\;
-	\While{stopping criterion not satisfied}{%
-		Generate a feasible solution $\bar{x}$ s.t. $\bar{x}\in I(x^\ast)$\;
-		\If{$f(\bar{x})<f(x^\ast)$}{%
-			$x^\ast\gets\bar{x}$\;  % this implies to fully explore each I(x^\ast)
-		}
-		$k\gets k+1$\;
+\begin{figure}
+\centering
+\subfloat[\emph{\texttt{swap} method}\label{subfig:swap}]{%
+\begin{tikzpicture}
+%	\draw [help lines,pink] (-1,-3) grid (7,2); \node[circle,draw,fill=red] at (0,0) {};
+	
+	\foreach \i/\j in {1/1,2/5,3/3,4/4,5/2,6/6}{%
+		\ifthenelse{\equal{\i}{2}\OR\equal{\i}{5}}{\def\myfill{magenta!20}}{\def\myfill{white}}
+		\node[seq point,fill=\myfill] (\i1) at ({\i-0.5},0.5) {\i};
+		\node[seq point] (\j2) at ({\j-0.5},-1.5) {\i};
 	}
-	\KwOut{$x^\ast$}
-\end{algorithm}
-
-If the current solution falls in a subdomain over which the objective function is convex, the algorithm remains trapped in this subdomain. In order to avoid being trapped in local minimum, it is then necessary to define a process likely to accept current feasible solutions that momentarily reduce the performance (objective function value) of the current solution.
-
-
-\begin{algorithm}\caption{Multi-start framework}\label{alg:multi-start}
-	\KwIn{$f$, $D$}
-	$x^\ast$ s.t. $f(x^\ast)=\infty$\;
-	\For{$b=1,2,\dots,B$}{%
-		Generate a starting feasible solution $x^0$\;
-		Perform a local search (algorithm~\ref{alg:local-search}) starting from $x^0$ to obtain $x^b$\;
-		\If{$f(x^b)<f(x^\ast)$}{%
-			$x^\ast\gets x^b$\;
-		}
+	\node[font=\Large] at ($(11)+(-1,0)$) {$x^k$};
+	\node[font=\Large] at ($(12)+(-1,0)$) {$x^{k+1}$};
+	
+	\draw[-latex,dashed,blue!80,thick] (21.south) -- ++(0,-0.3) -- ($(52.north)+(0,0.3)$) -- (52.north);
+	\draw[-latex,dashed,red!80,thick] (51.south) -- ++(0,-0.3) -- ($(22.north)+(0,0.3)$) -- (22.north);
+\end{tikzpicture}
+}\quad
+\subfloat[\emph{\texttt{reverse} method}\label{subfig:reverse}]{%
+\begin{tikzpicture}
+%	\draw [help lines,pink] (-1,-3) grid (7,2); \node[circle,draw,fill=red] at (0,0) {};
+	
+	\foreach \i/\j in {1/1,2/5,3/4,4/3,5/2,6/6}{%
+		\ifthenelse{\equal{\i}{2}\OR\equal{\i}{5}}{\def\myfill{magenta!20}}{\def\myfill{white}}
+		\node[seq point,fill=\myfill] (\i1) at ({\i-0.5},0.5) {\i};
+		\node[seq point] (\j2) at ({\j-0.5},-1.5) {\i};
 	}
-	\KwOut{$x^\ast$}
-\end{algorithm}
-
-
-
-% ***************************************************** %
-\subsection{Simulated annealing}
-% ***************************************************** %
-
-\begin{defs}[Metropolis acceptance criterion]
-	Let $(S,f)$ be an instantiation of a combinatorial minimization problem, and $i,j$ two points of the state space. The acceptance criterion for accepting solution $j$ from the current solution $i$ si given by the following probability:
-	\[
-	\mathbb{P}(\text{accept $j$})=
-	\begin{cases}
-		1 & \text{if $f(j)<f(i)$} \\
-		\exp(-(f(j)-f(i))/c) & \text{otherwise}
-	\end{cases}
-	\]
-	where $c$ is the control parameter.
-\end{defs}
-
-\begin{defs}[Transition]
-	A transition represents the replacement of the current solution $i$ by a neighboring solution. This operation is carried out in two stages: generation and acceptance.
-\end{defs}
-
-
-
-\begin{algorithm}\caption{Simulated Annealing (SA)}\label{alg:sim-ann}
-	\KwIn{$f$, $D$, $x^0$, $T_0$, $\alpha$, $L_k$}
-	%Perform few SA iterations repeatedly to obtain $T_0$ with high acceptance rate\;
-	$x^\ast\gets x^0$\;
-	$k\gets0$\;
-	\While{stopping criterion not satisfied}{%
-		$x^k\gets x^\ast$\;
-		\For{$i=1,2,\dots,L_k$}{%
-			Generate a feasible solution $\bar{x}$ s.t. $\bar{x}\in I(x^\ast)$\;
-			\If{$f(\bar{x})<f(x^\ast)$}{%
-				$x^\ast\gets\bar{x}$\tcp*[l]{down-hill, new best solution}
-			}
-			
-			\uIf{$f(\bar{x})<f(x^k)$}{%
-				$x^k\gets\bar{x}$\tcp*[l]{down-hill note that $f(x^k)\geq f(x^\ast)$}
-			}
-			\Else{%
-				Generate a random number $r\sim U(0,1)$\;
-				$\Delta E\gets f(\bar{x})-f(x^k)$\tcp*[l]{energy gap}
-				\If{$r<\exp(-\Delta E/T_k)$}{%
-					$x^k\gets\bar{x}$\tcp*[l]{up-hill, lower quality solution accepted}
-				}
-			}
-		}
-		$T_{k+1}\gets\alpha T_k$\;
-		$k\gets k+1$\;
-	}
-	\KwOut{$x^\ast$}
-\end{algorithm}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	\node[font=\Large] at ($(11)+(-1,0)$) {$x^k$};
+	\node[font=\Large] at ($(12)+(-1,0)$) {$x^{k+1}$};
+	
+	\draw[latex-latex,dashed,blue!80!red!80,thick] ($(22.north)+(0,0.3)$) -- ($(52.north)+(0,0.3)$);
+%	\draw[latex-,dashed,red!80,thick] ($(22.south)+(0,-0.3)$) -- ($(52.south)+(0,-0.3)$);
+\end{tikzpicture}
+}
+\caption{Perturbation methods for generating new solutions}
+\label{fig:perturbations}
+\end{figure}
 
 
 

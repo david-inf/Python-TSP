@@ -71,7 +71,7 @@
 \usepackage{pgfplots} % + tikz
 %\pgfplotsset{/pgf/number format/use comma,compat=newest}
 \pgfplotsset{compat=newest}
-\usetikzlibrary{calc, topaths}
+\usetikzlibrary{calc,math}
 %\usepackage{tikz} % + graphicx,keyval,xcolor
 %\definecolor{Maroon}{cmyk}{0,0.87,0.68,0.32}
 \definecolor{RoyalBlue}{cmyk}{1,0.50,0,0}
@@ -83,6 +83,7 @@
 \tikzstyle{treenode} = [draw,circle,minimum width=0.6cm,font=\footnotesize,text centered,
 inner sep=1.5pt,outer sep=0pt]
 \tikzstyle{graphnode} = [draw,circle,font=\small,minimum width=1.5em,inner sep=0pt,outer sep=0pt,fill=blue!20]
+\tikzstyle{seq point} = [draw,rectangle,minimum width=0.6cm,minimum height=0.6cm]
 % -------------------------------- %
 % Floating objects
 % -------------------------------- %
@@ -90,7 +91,7 @@ inner sep=1.5pt,outer sep=0pt]
 \usepackage{tabularx}
 %\usepackage{multirow}
 \graphicspath{{./Figures/}, {../py/plots/}}
-%\usepackage{subfig}
+\usepackage{subfig}
 %\usepackage{wrapfig}
 \usepackage{caption}
 \captionsetup{format=hang,labelsep=colon,font={small,rm},labelfont={sf,bf}}
@@ -117,7 +118,7 @@ inner sep=1.5pt,outer sep=0pt]
 % -------------------------------- %
 % My stuff
 % -------------------------------- %
-\newcommand{\myTitle}{Travelling Salesman Problem}
+\newcommand{\myTitle}{Tryna Solve the Travelling Salesman Problem}
 \newcommand{\mySubtitle}{}
 \newcommand{\mySubject}{Statistical physics and complex systems final project}
 \newcommand{\myName}{David Nardi}
@@ -177,9 +178,11 @@ inner sep=1.5pt,outer sep=0pt]
 \maketitle
 
 \begin{abstract}
-With this work we tackle the Travelling Salesman Problem (TSP) using few known algorithms. We start with two local search approaches that swap the edges of the cycle, once we saw that the local searches get trapped in local minima we moved forward to a multi-start meta-heuristic for each local search. Simulated annealing is then tested using a routine to initialize the temperature parameter.
+With this work we tackle the Travelling Salesman Problem (TSP) using few known heuristic algorithms. We start with two local search approaches that swap the edges of the cycle, once we saw that the local searches get trapped in local minima we moved forward to a multi-start meta-heuristic for each local search. Simulated annealing is then tested using a routine to initialize the temperature parameter.
 
-Results show that\dots
+Results show that the local search gets trapped in local minima due to the starting solution, multi-start solves this problem; the simulated annealing takes much more computation time but ends always in a better solution.
+
+Further studies\dots
 
 Python implementation is available at \href{\myUrl}{this} GitHub repo.
 \end{abstract}
@@ -187,10 +190,46 @@ Python implementation is available at \href{\myUrl}{this} GitHub repo.
 \setcounter{tocdepth}{2}
 \tableofcontents\cleardoublepage
 \pagestyle{main}
+
+\noindent
+Modelling the TSP
+\begin{enumerate}
+	\item Ops perspective
+	\item Smoothing the hard constraint, the pragmatic perspective
+\end{enumerate}
+% TODO: consider summarizing the algorithms and their cathegories with a table
+Tryna solve the TSP (for each solver the circular and random layouts)
+\begin{enumerate}
+	\item Exact
+	\begin{itemize}
+		\item Brute-force: check all possible permutations
+	\end{itemize}
+	\item Local search
+	\begin{itemize}
+		\item \texttt{swap}
+		\item \texttt{swap-rev} or \texttt{reverse}
+	\end{itemize}
+	\item Simulated annealing (SA)
+	\item Multi-start (GRASP)
+\end{enumerate}
+Results
+\begin{itemize}
+	\item Convergence analysis and other diagnostics
+	\item Energy view using multi-start
+	\item What's next? Simulated tempering (SA with reheating), genetics algorithms
+\end{itemize}
+References
+\begin{itemize}
+	\item Collega di Pisa? Quelli che trovavo su Medium? Paper trovati per caso?
+\end{itemize}
+\cleardoublepage
+
 % ************************************************************************************* %
 % MAINMATTER %
 % ************************************************************************************* %
 \input{./Sections/intro.tex}
+\input{./Sections/algs.tex}
+\input{./Sections/results.tex}
 % ************************************************************************************* %
 % BACKMATTER %
 % ************************************************************************************* %

@@ -19,10 +19,11 @@ Perturbation methods:
 
 
 Algorithms:
+- Exact:
+    - Brute-force: check all possible permutations
 - Heuristics:
     - 2-exchange
     - k-exchange??
-    - Brute-force
 - Meta-heuristics
     - Multi-start
         - 2-exchange

@@ -206,7 +206,7 @@ def _metropolis(current_f, fk, temp):
     else:
         # up-hill
         rand_unif = random.random()  # in (0,1)
-        delta_energy = current_f - fk  # energy gap, should be >= 0
+        delta_energy = current_f - fk  # energy gap, should be >= 0 here
         criterion = rand_unif < np.exp(-delta_energy / temp)
 
     return criterion

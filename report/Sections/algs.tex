@@ -1,0 +1,122 @@
+% !TeX spellcheck = en_GB
+% ***************************************************** %
+\section{Heuristic algorithms}\label{sc:algs}
+% ***************************************************** %
+
+Heuristic algorithms do not guarantee the optimal solution but may give good solutions, we made use of local search and meta-heuristics.
+
+% ***************************************************** %
+\subsection{Local search}\label{subsc:local-search}
+% ***************************************************** %
+
+The idea behind this class of algorithms is simple: given a feasible solution, there might be some other similar feasible solutions with lower objective function value. So the idea is to optimize the objective function by exploring the neighbourhood of the current point $x^k$ in the solution space.
+
+The local search starts with a feasible solution randomly drawn from the feasible set $x^0\in F$. A generation mechanism is then successively applied in order to find a better solution, in terms of the objective function value $f(x^k)$, by exploring the neighbourhood of the current solution. Exploring the neighbourhood means perturbing the current solution, for this purpose we use the methods in figure~\vref{fig:perturbations}.
+
+The algorithm ends when no improvement can be found (or a maximum number or iterations $k^\ast$ has been exceeded), and the current solution is considered as the approximate solution of the optimization problem.
+
+%\begin{algorithm}\caption{Local search framework}
+%\KwIn{$x^0$}
+%$k\gets 0$\;
+%\While{$\sigma(x^k)\neq x^k$}{%
+	%	$\sigma(x^k)\gets\argmin_yc(y)\mid y\in I(x^k)$\;
+	%	$x^{k+1}\gets\sigma(x^k)$\;
+	%}
+%\end{algorithm}
+
+\begin{algorithm}\caption{Local search framework}\label{alg:local-search}
+	\KwIn{$f$, $D$, $x^0$}
+	$x^\ast\gets x^0$\;
+	$k\gets 0$\;
+	\While{stopping criterion not satisfied}{%
+		Generate a feasible solution $x^k$, see figure~\ref{fig:perturbations}\;
+		\If{$f(x^k)<f(x^\ast)$}{%
+			$x^\ast\gets x^k$\;  % this implies to fully explore each I(x^\ast)
+		}
+		$k\gets k+1$\;
+	}
+	\KwOut{$x^\ast$}
+\end{algorithm}
+
+
+% ***************************************************** %
+\subsection{Multi-start}\label{subsc:multi-start}
+% ***************************************************** %
+
+Local search algorithms always ends in a local minima that is not the global optimum, this is due certainly to the perturbation method and the starting solution $x^0$ as well.
+
+In order to make the local search independent from $x^0$, we can use multi-start meta-heuristics so that we can perform local searches starting from different starting solutions. Basically, we choose a number $B$ of simulations, for each iteration a starting solution is randomly generated, then a local search is performed; finally the best solution is chosen.
+
+This procedure is called Greedy Randomized Adaptive Search Procedure (GRASP), for large $B$ we can be sure to obtain the global optimum since it is part of the feasible set from which the starting solutions are drawn.
+
+\begin{algorithm}\caption{Multi-start framework}\label{alg:multi-start}
+	\KwIn{$f$, $D$}
+	$x^\ast$ s.t. $f(x^\ast)=\infty$\;
+	\For{$b=1,2,\dots,B$}{%
+		Generate a starting feasible solution $x^0$\;
+		Perform a local search (see algorithm~\ref{alg:local-search}) starting from $x^0$ to obtain $\hat{x}^b$\;
+		\If{$f(\hat{x}^b)<f(x^\ast)$}{%
+			$x^\ast\gets\hat{x}^b$\;
+		}
+	}
+	\KwOut{$x^\ast$}
+\end{algorithm}
+
+
+% ***************************************************** %
+\subsection{Simulated annealing}
+% ***************************************************** %
+
+Local search falls in a subdomain over which the objective function is convex, in order to avoid being trapped in a local minima, it is necessary to define e process likely to accept current feasible solutions that momentarily reduce the objective function value.
+
+Simulated Annealing (SA) can implement this idea, the acceptance of new solution is controlled by a \emph{temperature} parameter, in such way the algorithm can consider past informations about the optimization process: once the algorithms ends in a good solution, similar solutions can be quite near the current one.
+
+The simulated annealing uses the following parameters:
+\begin{itemize}
+	\item $T_k$: temperature, starting from a initial value $T_0$ (that might be iteratively tuned), this parameter drives the search of the global optimum;
+	\item $\alpha$: cooling rate for the temperature parameter according to geometric cooling $T_{k+1}\alpha T_k$;
+	\item $L_k$: length of the Markov Chain for which $T_k=\text{cost}$, it is the number of inner iterations for each $k$, on which new solutions are generated, each on of these iterations is called \emph{transition}.
+\end{itemize}
+
+Inside each transition a new feasible solution $x^t$ is generated as in the local search through methods from figure~\vref{fig:perturbations}; from statistical mechanics perspective, these perturbations allows to work in the canonical ensemble, the energy $E_t$ (the objective function) is free to fluctuate but the number of particles (nodes in the graph) remains constant.
+
+Once the solution is generated the algorithm checks if there is an improvement over the current best solution $x^\ast$ (the sequence of $f(x^\ast)$ is constrained to be decreasing); then the Metropolis acceptance criterion is applied using the energy gap $\Delta E_t=f(x^t)-f(x^k)$, this rule checks if there is an improvement over the current best inner solution $x^k$ the criterion is as follows
+\[
+\mathbb{P}(\text{accept $x^t$})=
+\begin{cases}
+	1 & \text{if $f(x^t)<f(x^k), \text{ i.e. } \Delta E_t<0$} \\
+	\exp(-\Delta E_t/T_k) & \text{otherwise, i.e. $\Delta E_t\geq0$}
+\end{cases}
+\]
+the rule accepts the new solution based on the Boltzmann distribution, this criterion allows to accept up-hill moves that increase the objective function value $f(x^k)$, so the sequence $\set{f(x^k)}_k$ it is not necessarily decreasing.
+
+\begin{algorithm}\caption{Simulated Annealing (SA)}\label{alg:sim-ann}
+	\KwIn{$f$, $D$, $x^0$, $T_0$, $\alpha$, $L_k$}
+	%Perform few SA iterations repeatedly to obtain $T_0$ with high acceptance rate\;
+	$x^\ast\gets x^0$\;
+	$k\gets0$\;
+	\While{stopping criterion not satisfied}{%
+		$x^k\gets x^\ast$\;
+		\For{$i=1,2,\dots,L_k$}{%
+			Generate a feasible solution $x^t$, see figure~\ref{fig:perturbations}\;
+			\If{$f(x^t)<f(x^\ast)$}{%
+				$x^\ast\gets x^t$\tcp*[l]{down-hill, new best solution}
+			}
+			
+			\uIf{$f(x^t)<f(x^k)$}{%
+				$x^k\gets x^t$\tcp*[l]{down-hill note that $f(x^k)\geq f(x^\ast)$}
+			}
+			\Else{%
+				Generate a random number $r\sim U(0,1)$\;
+				$\Delta E\gets f(x^t)-f(x^k)$\tcp*[l]{energy gap}
+				\If{$r<\exp(-\Delta E/T_k)$}{%
+					$x^k\gets x^t$\tcp*[l]{up-hill, lower quality solution accepted}
+				}
+			}
+		}
+		$T_{k+1}\gets\alpha T_k$\;
+		$k\gets k+1$\;
+	}
+	\KwOut{$x^\ast$}
+\end{algorithm}
+
