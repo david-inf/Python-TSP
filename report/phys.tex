@@ -167,7 +167,7 @@ inner sep=1.5pt,outer sep=0pt]
 	pdftitle={\myTitle},pdfauthor={\myName},pdfsubject={\mySubject}%
 }
 % -------------------------------- %
-%\usepackage{showframe}
+\usepackage{showframe}
 \begin{document}
 \frenchspacing
 % ************************************************************************************* %
@@ -180,9 +180,7 @@ inner sep=1.5pt,outer sep=0pt]
 \begin{abstract}
 With this work we tackle the Travelling Salesman Problem (TSP) using few known heuristic algorithms. We start with two local search approaches that swap the edges of the cycle, once we saw that the local searches get trapped in local minima we moved forward to a multi-start meta-heuristic for each local search. Simulated annealing is then tested using a routine to initialize the temperature parameter.
 
-Results show that the local search gets trapped in local minima due to the starting solution, multi-start solves this problem; the simulated annealing takes much more computation time but ends always in a better solution.
-
-Further studies\dots
+Results show that the local search gets trapped in local minima due to the starting solution, multi-start solves this problem; the simulated annealing takes much more computation time but ends always in a better solution. Further studies may focus on reheating procedures for the simulated annealing like the simulated tempering.
 
 Python implementation is available at \href{\myUrl}{this} GitHub repo.
 \end{abstract}

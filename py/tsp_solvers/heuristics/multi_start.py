@@ -116,6 +116,7 @@ def _inner_algorithm(fun, D, base_alg, local_search, generator,
     if base_alg in ("local-search", "single-local-search"):
 
         ## local search
+        local_search_options["generator"] = generator
         res_sim = solve_swap(
             fun, D, seqt, local_search, **local_search_options)
 

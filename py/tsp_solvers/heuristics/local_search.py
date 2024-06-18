@@ -15,7 +15,8 @@ from tsp_solvers import rand_init_guess
 
 
 ## local search swap nodes
-def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
+def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42,
+               generator=None):
     """
     2-exchange local search.
 
@@ -41,7 +42,10 @@ def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
     """
 
     ## seed for initial guess and swap routines
-    _rng = np.random.default_rng(random_state)
+    if generator is None:
+        _rng = np.random.default_rng(random_state)
+    else:
+        _rng = generator
 
     if x0 is None:
         # generate random hamiltonian cycle [0,...,0]

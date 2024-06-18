@@ -8,6 +8,10 @@ from tsp_solvers.heuristics.simulated_annealing import solve_simulated_annealing
 
 solvers_list = ["brute-force", "swap", "swap-rev", "multi-start", "simulated-annealing"]
 
+solvers_dict = {"exact": ["brute-force"],
+                "heuristics": ["swap", "swap-rev"],
+                "meta-heuristics": ["multi-start", "simulated-annealing"]}
+
 
 def solve_tsp(fun, cost, solver="swap", seq0=None, options=None):
     """

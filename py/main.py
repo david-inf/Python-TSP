@@ -12,19 +12,27 @@ from tsp_solvers.diagnostic_utils import (
 from tsp_solvers.optimize import solve_tsp
 
 plots_dir = "./plots/"
+N_grid = [10, 20, 50, 100]
 
 # %% TSP circular
 
 n1 = 40
 
+D_circle, C_circle = zip(*[circle_cities(n) for n in N_grid])
+D_circle = list(D_circle)
+C_circle = list(C_circle)
+
 D1, C1 = circle_cities(n1)
 
+# %%%
+
 _plot_nodes(C1)
+plt.savefig(plots_dir + "circle-nodes.pdf")
 
 # %%% swap local search
 
 res_circle_swap = solve_tsp(tsp_fun, D1, solver="swap",
-    options=dict(maxiter=1000, random_state=None))
+    options=dict(maxiter=1000, random_state=42))
 
 # %%%%
 
@@ -38,7 +46,7 @@ local_search_animation(res_circle_swap, C1, "circle-swap.mp4")
 # %%% swap-rev local search
 
 res_circle_swaprev = solve_tsp(tsp_fun, D1, solver="swap-rev",
-    options=dict(maxiter=1000, random_state=None))
+    options=dict(maxiter=1000, random_state=42))
 
 # %%%%
 
@@ -52,8 +60,8 @@ local_search_animation(res_circle_swaprev, C1, "circle-swaprev.mp4")
 # %%% multi-start for swap-rev
 
 res_circle_multi_swaprev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    options=dict(nsim=1000, local_search="swap-rev",
-        local_search_options=dict(maxiter=500, random_state=None)))
+    options=dict(nsim=2000, local_search="swap-rev", random_state=42,
+        local_search_options=dict(maxiter=1000)))
 
 # %%%%
 
@@ -65,7 +73,7 @@ plt.savefig(plots_dir + "circle-multi-swaprev.pdf")
 
 res_circle_ann = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
     options=dict(perturbation="swap-rev", maxiter_outer=1200, maxiter_inner=800,
-                 cooling_rate=0.995, random_state=None))
+                  cooling_rate=0.995, random_state=None))
 
 # %%%%
 
@@ -108,6 +116,11 @@ annealing_animation(res_circle_ann, C1, "circle-annealing-quad.mp4")
 n2 = 40
 
 D2, C2 = generate_cities(n2, 20)
+
+# %%%
+
+_plot_nodes(C2)
+plt.savefig(plots_dir + "rand-nodes.pdf")
 
 # %%% swap local search
 
