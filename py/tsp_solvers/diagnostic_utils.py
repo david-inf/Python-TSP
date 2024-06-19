@@ -135,6 +135,8 @@ def annealing_diagnostic(coords, opt_res):
     return None
 
 
+# %% Energy landscape
+
 def energy_landscape(solvers_list, size_grid, ax=None):
 
     cols = len(solvers_list)//2
@@ -144,10 +146,11 @@ def energy_landscape(solvers_list, size_grid, ax=None):
     ## plot energy landscape
     for i, ax in enumerate(axs.flat):
 
-        solver = solvers_list[i]
-        ax.hist(solver.fun_seq, density=True)
+        solver = solvers_list[i][0]
+        iters = solvers_list[i][1]
+        ax.hist(solver.fun_seq, density=True, stacked=True)
 
-        ax.set_title(f"N: {size_grid[i]}")
+        ax.set_title(f"N: {size_grid[i]}, k: {iters}")
 
     ## plot objective function performance
     # fig2, axs2 = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols,

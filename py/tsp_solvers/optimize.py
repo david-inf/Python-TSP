@@ -47,7 +47,7 @@ def solve_tsp(fun, cost, solver, seq0=None, options=None):
 
     """
 
-    if solver not in solvers_list:
+    if solver not in _solvers_list:
 
         raise RuntimeError("Unknown solver.")
 

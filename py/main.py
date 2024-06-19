@@ -12,17 +12,16 @@ from tsp_solvers.diagnostic_utils import (
 from tsp_solvers.optimize import solve_tsp
 
 plots_dir = "./plots/"
-N_grid = [10, 20, 50, 100]
+N_grid = [10, 15, 20, 30]
+N = 40
 
 # %% TSP circular
-
-n1 = 40
 
 D_circle, C_circle = zip(*[circle_cities(n) for n in N_grid])
 D_circle = list(D_circle)
 C_circle = list(C_circle)
 
-D1, C1 = circle_cities(n1)
+D1, C1 = circle_cities(N)
 
 # %%%
 
@@ -43,7 +42,7 @@ plt.savefig(plots_dir + "circle-swap.pdf")
 
 local_search_animation(res_circle_swap, C1, "circle-swap.mp4")
 
-# %%% swap-rev local search
+# %%% reverse local search
 
 res_circle_reverse = solve_tsp(tsp_fun, D1, solver="reverse",
     options=dict(maxiter=1000, random_state=42))
@@ -75,27 +74,52 @@ annealing_animation(res_circle_ann, C1, "circle-annealing-quad.mp4")
 
 # %%% energy landscape
 
-# %%%% local search
+def solve_multiple_ls(cost, size_grid, nsim, ls_iters=[30, 50, 100, 150]):
 
-circle_local_search_landscape = []
-circle_annealing_landscape = []
+    reverse_solvers = []
+    # annealing_solvers = []
 
-for i in N_grid:
-    # res_circle_multi_swaprev = solve_tsp(tsp_fun, D1, solver="multi-start",
-    #     options=dict(nsim=1000, local_search="swap-rev", random_state=None, n_jobs=6,
-    #         local_search_options=dict(maxiter=200, random_state=None)))
-    res_circle_multi_swaprev = solve_tsp(tsp_fun, D1, "multi-start",
-        options=dict(base_alg="local-search", nsim=1000, random_state=42, n_jobs=6,
-            base_options=dict(solver="swap-rev", maxiter=200, random_state=42)))
-    circle_local_search_landscape.append(res_circle_multi_swaprev)
-
+    for i in range(len(size_grid)):
     
+        ## local search
+        res_reverse = solve_tsp(tsp_fun, cost[i], "multi-start",
+            options=dict(base_alg="local-search", nsim=nsim, random_state=42, n_jobs=6,
+                base_options=dict(solver="reverse", maxiter=ls_iters[i], random_state=None)))
 
-# %%%%%
+        ## different local minima / nsim
+        # ratio = 
 
-energy_landscape(circle_local_search_landscape, N_grid)
-plt.savefig(plots_dir + "circle-local_search-energy.pdf")
+        reverse_solvers.append((res_reverse, ls_iters[i]))
+    
+        ## sim annealing
+        # res_annealing = solve_tsp(tsp_fun, cost[i], "multi-start",
+        #     options=dict(base_alg="sim-annealing", nsim=nsim, random_state=42, n_jobs=6,
+        #         base_options=dict(maxiter_outer=300, maxiter_inner=ls_iters[i],
+        #             random_state=None)))
 
+        # annealing_solvers.append(res_annealing)
+
+    return reverse_solvers#, annealing_solvers
+
+# %%%%
+
+circle_energies_ls = solve_multiple_ls(D_circle, N_grid, 300, [100,500,800,1000])
+
+# %%%%
+
+energy_landscape(circle_energies_ls, N_grid)
+plt.savefig(plots_dir + "circle-reverse-energy.pdf")
+
+## get unique solution
+# np.unique(solvers_list[0][0].x_seq, return_counts=True, axis=0)
+## get theirs f(x)
+
+## get unique f(x) from previous
+
+
+
+# energy_landscape(energies[1], N_grid)
+# plt.savefig(plots_dir + "circle-annealing-energy.pdf")
 
 
 # %%% others
@@ -120,9 +144,11 @@ plt.savefig(plots_dir + "circle-local_search-energy.pdf")
 
 # %% TSP random
 
-n2 = 40
+D_rand, C_rand = zip(*[generate_cities(n) for n in N_grid])
+D_rand = list(D_rand)
+C_rand = list(C_rand)
 
-D2, C2 = generate_cities(n2, 20)
+D2, C2 = generate_cities(N)
 
 # %%%
 
@@ -143,7 +169,7 @@ plt.savefig(plots_dir + "rand-swap.pdf")
 
 local_search_animation(res_rand_swap, C2, "rand-swap.mp4")
 
-# %%% swap-rev local search
+# %%% reverse local search
 
 res_rand_reverse = solve_tsp(tsp_fun, D2, solver="reverse",
     options=dict(maxiter=1000, random_state=42))
@@ -172,6 +198,18 @@ plt.savefig(plots_dir + "rand-annealing-quad.pdf")
 
 annealing_animation(res_rand_ann, C2, "rand-annealing-quad.mp4")
 
+
+# %%% Energy landscape
+
+energies_rand = solve_multiple(D_rand, N_grid)
+
+# %%%%
+
+energy_landscape(energies_rand[0], N_grid)
+plt.savefig(plots_dir + "rand-reverse-energy.pdf")
+
+energy_landscape(energies_rand[1], N_grid)
+plt.savefig(plots_dir + "rand-annealing-energy.pdf")
 
 
 

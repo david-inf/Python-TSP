@@ -3,7 +3,7 @@
 \section{Modelling the travelling salesman problem}\label{sc:tsp}
 % ***************************************************** %
 
-Given an undirected (weighted) and complete graph $G=(V,E)$, where the set of all nodes $\abs{V}=N$ and the set of all edges $\set{i,j}$ is $\abs{E}=N(N-1)/2$ and their relative weight $c_{ij}>0$. an Hamiltonian cycle is a cycle which touches every node in $V$ once and only once, an Hamiltonian cycle might not exist.
+Given an undirected (weighted) and complete graph $G=(V,E)$, where the set of all nodes $\abs{V}=N$ and the set of all edges $\set{i,j}$ is $\abs{E}=N(N-1)/2$ and their relative weight $c_{ij}>0$. An Hamiltonian cycle is a cycle which touches every node in $V$ once and only once, an Hamiltonian cycle might not exist.
 
 We consider the two following layouts with all possible edges
 
@@ -56,17 +56,19 @@ We consider the two following layouts with all possible edges
 				}
 			}
 
-%			\draw[->,very thick] (1) -- (8) -- (3);
+			\draw[->,very thick] (1) -- (8); \draw[->,very thick] (8) -- (3); \draw[->,very thick] (3) -- (7);
+			\draw[->,very thick] (7) -- (4); \draw[->,very thick] (4) -- (6); \draw[->,very thick] (6) -- (5);
+			\draw[->,very thick] (5) -- (2); \draw[->,very thick] (2) -- (1);
 		\end{tikzpicture}%\captionof{figure}{Random layout}
 	\end{minipage}
 \end{center}
-on the left, a circular graph, for which we know that the optimal solution is a circular path; on the right each node is in a random position, so we don't know exactly the optimal solution, that is \numlist{1;2;3;4;5;6;7;8} but the same reversed too $f(\bar{x}_1)=f(\bar{x}_2)$. % further discussion in the energy view section
+on the left, a circular graph, for which we know that the optimal solution is a circular path, that is \numlist{1;2;3;4;5;6;7;8} but the same reversed too since $f(\bar{x}_1)=f(\bar{x}_2)$; on the right each node is in a random position, so we don't know exactly the optimal solution, a feasible solution is displayed. % further discussion in the energy view section
 
-We constraint the Hamiltonian cycle to start with the first node 1, so the total number of possible cycles reduces to $(N-1)!$.
+We constraint the Hamiltonian cycle to start with the first node 1, so that the total number of possible cycles reduces to $(N-1)!$.
 
 
 % ***************************************************** %
-\subsection{The optimization perspective}
+\subsection{From an optimization perspective}
 % ***************************************************** %
 
 The Travelling Salesman Problem (TSP) consists in finding the \emph{shortest Hamiltonian cycle}. The feasible set $F$ is the set of all Hamiltonian cycles in $G$ and the objective function $c(P)$ is the length of the Hamiltonian cycle $P$.
@@ -94,7 +96,7 @@ hence the objective function si the sum of all costs associated with the edges i
 %		\draw[->] (k) -- ($(k)+(-60:0.7)$);
 	\end{tikzpicture}
 \end{center}
-that is the \emph{cycle covering} constraint.
+that is the \emph{cycle covering} constraint.\par\medskip
 
 Using only this constraint can result in a solution with sub-tours, so we add a constraint for connecting all possible sub-tours
 
@@ -148,7 +150,7 @@ The resulting optimization problem will be
 	\end{aligned}
 \end{equation}
 
-In practice, for simplicity, the cost for each edge is the distance between the two cities, so we use the distance matrix $D\in\R^{N\times N}$
+In practice, for simplicity, the cost for each edge is the Euclidean distance between the two cities\footnote{That is $d_{ij}=\sqrt{(x_i-x_j)^2+(y_i-y_j)^2}$}, so we can use the distance matrix $D\in\R^{N\times N}$
 \[
 D=(d_{ij})=
 \begin{pmatrix} 
@@ -209,12 +211,12 @@ that is a symmetric matrix, whether an edge is in the cycle or not, the variable
 \subsection{Smoothing the hard constraint}
 % ***************************************************** %
 
-Each one of the algorithms considered uses of a starting solution $x^0$ and then performs a perturbation on that solution. We can smooth the hard constraint by keeping this solution each time and performing permutations of the nodes so that the new sequence is still a Hamiltonian cycle, hence a new point.
+Each one of the algorithms considered starts with a starting feasible solution $x^0$ and then performs a perturbation on that solution. We can smooth the hard constraint by keeping this solution each time and performing permutations of the nodes so that the new sequence is still a Hamiltonian cycle, hence a new point.
 
 Here we have used two different methods, figure~\vref{fig:perturbations}, that randomly draw two different nodes given a solution $x^k$:
 \begin{itemize}
 	\item \texttt{swap}: given the sequence, swap node $i$ position with node $j$, figure~\ref{subfig:swap};
-	\item \texttt{reverse}: reverse the nodes between $i$ and $j$ inclusive, figure~\ref{subfig:reverse}
+	\item \texttt{reverse}: reverse the nodes between $i$ and $j$ inclusive, figure~\ref{subfig:reverse}.
 \end{itemize}
 
 

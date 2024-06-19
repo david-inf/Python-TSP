@@ -3,26 +3,40 @@
 \section{Results}\label{subsc:res}
 % ***************************************************** %
 
-Firstly we explore the \emph{solution space} using the \texttt{multi-start} meta-heuristics on different TSP instances, the we solve another instance of the problem and we show the results in figures~\ref{fig:res-local-search} and~\vref{fig:res-sim-annealing}.
+Firstly we explore the \emph{solution space} using the \texttt{multi-start} meta-heuristics on different TSP instances
+
+then circular and random layout instances of the TSP were solved
+
+the problem and we show the results in figures~\ref{fig:res-local-search} and~\vref{fig:res-sim-annealing}.
+
+Results show that local search easily gets trapped in local minima, especially the \texttt{swap} method, while \texttt{reverse} proves to be a better choice, however both need more iterations
+
+Simulated annealing requires a great length of the Markov chain
 
 
 % ***************************************************** %
 \subsection{Energy landscape}\label{subsc:energy-land}
 % ***************************************************** %
 
+The energy landscape means to empirically find the distribution of the objective function for different TSP instances. Using a multi-start method on a local search and simulated annealing we keep track of each $x^\ast$ that the algorithms reach and then the histogram using each $f(x^\ast)$ is plotted.
+
+See figure
 
 
 
-
-%\begin{figure}
-%\centering
-%\subfloat[]%
-%	{} \,
-%\subfloat[]%
-%	{}
-%\caption{Local search and SA energy view}
-%\label{fig:res-energy}
-%\end{figure}
+\begin{figure}
+\centering
+\subfloat[\emph{Local search with \texttt{reverse} method}]%
+	{\includegraphics[width=0.49\textwidth]{circle-reverse-energy}} \,
+\subfloat[\emph{Simulated annealing}]%
+	{\includegraphics[width=0.49\textwidth]{circle-annealing-energy}} \\
+\subfloat[\emph{Local search with \texttt{reverse} method}]%
+	{\includegraphics[width=0.49\textwidth]{rand-reverse-energy}} \,
+\subfloat[\emph{Simulated annealing}]%
+	{\includegraphics[width=0.49\textwidth]{rand-annealing-energy}}
+\caption{Local search and SA energy view for circular and random layouts}
+\label{fig:res-energy}
+\end{figure}
 
 
 
