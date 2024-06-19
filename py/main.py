@@ -87,9 +87,12 @@ circle_local_search_landscape = []
 circle_annealing_landscape = []
 
 for i in N_grid:
-    res_circle_multi_swaprev = solve_tsp(tsp_fun, D1, solver="multi-start",
-        options=dict(nsim=1000, local_search="swap-rev", random_state=None, n_jobs=6,
-            local_search_options=dict(maxiter=200, random_state=None)))
+    # res_circle_multi_swaprev = solve_tsp(tsp_fun, D1, solver="multi-start",
+    #     options=dict(nsim=1000, local_search="swap-rev", random_state=None, n_jobs=6,
+    #         local_search_options=dict(maxiter=200, random_state=None)))
+    res_circle_multi_swaprev = solve_tsp(tsp_fun, D1, "multi-start",
+        options=dict(base_alg="local-search", nsim=1000, random_state=42, n_jobs=6,
+            base_options=dict(solver="swap-rev", maxiter=200, random_state=42)))
     circle_local_search_landscape.append(res_circle_multi_swaprev)
 
     

@@ -13,7 +13,7 @@ solvers_dict = {"exact": ["brute-force"],
                 "meta-heuristics": ["multi-start", "simulated-annealing"]}
 
 
-def solve_tsp(fun, cost, solver="swap", seq0=None, options=None):
+def solve_tsp(fun, cost, solver, seq0=None, options=None):
     """
     Wrapper for TSP solvers.
 

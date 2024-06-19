@@ -14,7 +14,7 @@ from scipy.optimize import OptimizeResult
 from tsp_solvers import rand_init_guess
 
 
-## local search swap nodes
+# TODO: change to solve_local_search
 def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42,
                generator=None):
     """
