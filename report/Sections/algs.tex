@@ -54,7 +54,7 @@ This procedure is called Greedy Randomized Adaptive Search Procedure (GRASP), fo
 	$x^\ast$ s.t. $f(x^\ast)=\infty$\;
 	\For{$b=1,2,\dots,B$}{%
 		Generate a starting feasible solution $x^0$\;
-		Perform a local search (see algorithm~\ref{alg:local-search}) starting from $x^0$ to obtain $\hat{x}^b$\;
+		Local search (algorithm~\ref{alg:local-search}) from $x^0$ to $\hat{x}^b$\;
 		\If{$f(\hat{x}^b)<f(x^\ast)$}{%
 			$x^\ast\gets\hat{x}^b$\;
 		}
@@ -73,14 +73,14 @@ Simulated Annealing (SA) can implement this idea, the acceptance of new solution
 
 The simulated annealing uses the following parameters:
 \begin{itemize}
-	\item $T_k$: temperature, starting from a initial value $T_0$ (that might be iteratively tuned), this parameter drives the search of the global optimum;
-	\item $\alpha$: cooling rate for the temperature parameter according to geometric cooling $T_{k+1}\alpha T_k$;
-	\item $L_k$: length of the Markov Chain for which $T_k=\text{cost}$, it is the number of inner iterations for each $k$, on which new solutions are generated, each on of these iterations is called \emph{transition}.
+	\item $T_k$: \emph{temperature}, starting from a initial value $T_0$ (that might be iteratively tuned), this parameter drives the search of the global optimum;
+	\item $\alpha$: \emph{cooling rate} for the temperature parameter according to geometric cooling $T_{k+1}\alpha T_k$;
+	\item $L_k$: \emph{length of the Markov Chain} for which $T_k=\text{cost}$, it is the number of inner iterations for each $k$, on which new solutions are generated, each on of these iterations is called \emph{transition}.
 \end{itemize}
 
 Inside each transition a new feasible solution $x^t$ is generated as in the local search through methods from figure~\vref{fig:perturbations}; from statistical mechanics perspective, these perturbations allows to work in the canonical ensemble, the energy $E_t$ (the objective function) is free to fluctuate but the number of particles (nodes in the graph) remains constant.
 
-Once the solution is generated the algorithm checks if there is an improvement over the current best solution $x^\ast$ (the sequence of $f(x^\ast)$ is constrained to be decreasing); then the Metropolis acceptance criterion is applied using the energy gap $\Delta E_t=f(x^t)-f(x^k)$, this rule checks if there is an improvement over the current best inner solution $x^k$ the criterion is as follows
+Once the solution is generated the algorithm checks if there is an improvement over the current best solution $x^\ast$ (the sequence of $f(x^\ast)$ is constrained to be decreasing); then the Metropolis acceptance criterion is applied using the energy gap $\Delta E_t=f(x^t)-f(x^k)$, this rule checks if there is an improvement over the current best inner solution $x^k$, the criterion is as follows
 \[
 \mathbb{P}(\text{accept $x^t$})=
 \begin{cases}

@@ -74,7 +74,11 @@ def _plot_chi(opt_res, ax=None):
     if ax is None:
         fig, ax = plt.subplots()
 
-    ax.scatter(np.arange(opt_res.chi_seq.size), opt_res.chi_seq, s=3)
+    # ax.scatter(np.arange(opt_res.chi_seq.size), opt_res.chi_seq, s=3)
+    ax.plot(opt_res.chi_seq, marker="o", linestyle="None", markersize=2)
+
+    ax.set_xscale("log")
+    ax.set_xlim(0.9)
 
     ax.grid(True, which="both", axis="both")
 
@@ -90,6 +94,9 @@ def _plot_temp(opt_res, ax=None):
     
     ## plot f(x) sequence
     ax.plot(opt_res.temp_seq)
+
+    ax.set_xscale("log")
+    ax.set_xlim(0.9)
     
     ax.grid(True, which="both", axis="both")
     
@@ -124,14 +131,27 @@ def annealing_diagnostic(coords, opt_res):
     return None
 
 
-def energy_view(opt_res, ax=None):
+def energy_landscape(solvers_list, size_grid, ax=None):
 
-    if ax is None:
-        fig, ax = plt.subplots()
+    cols = len(solvers_list)//2
+    fig, axs = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols,
+                            layout="constrained")
 
-    ax.hist(opt_res.fun_seq)
+    ## plot energy landscape
+    for i, ax in enumerate(axs.flat):
 
-    return None
+        solver = solvers_list[i]
+        ax.hist(solver.fun_seq, density=True)
+
+        ax.set_title(f"N: {size_grid[i]}")
+
+    ## plot objective function performance
+    # fig2, axs2 = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols,
+    #                         layout="constrained")
+
+    # for i, ax in enumerate(axs2.flat):
+
+    #     plot_fun(solvers_list[i], ax)
 
 
 # ************************************************** #
@@ -159,6 +179,8 @@ def _plot_nodes(coords, ax=None):
     ax.set_xlabel(r"$x$")
     ax.set_ylabel(r"$y$")
     ax.set_aspect('equal', adjustable='box')
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
 
 
 def local_search_animation(opt_res, coords, filename, delay=100):

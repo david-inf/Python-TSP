@@ -28,6 +28,13 @@ We consider the two following layouts with all possible edges
 					\draw[-,very thin,gray] (\i) to (\j);
 				}
 			}
+
+			\foreach \i in {1,...,\m}{%
+				\mycount=\i
+				\advance\mycount by 1
+				\draw[->,very thick] (\i) -- (\the\mycount);
+			}
+			\draw[->,very thick] (8) -- (1);
 		\end{tikzpicture}%\captionof{figure}{Circular layout}
 	\end{minipage}\quad
 	\begin{minipage}{0.4\textwidth}
@@ -48,6 +55,8 @@ We consider the two following layouts with all possible edges
 					\draw[-,very thin,gray] (\i) to (\j);
 				}
 			}
+
+%			\draw[->,very thick] (1) -- (8) -- (3);
 		\end{tikzpicture}%\captionof{figure}{Random layout}
 	\end{minipage}
 \end{center}
@@ -81,7 +90,7 @@ hence the objective function si the sum of all costs associated with the edges i
 		\node[graphnode,fill=white,font=\footnotesize] (k) at (1.5,0.1) {$k$};
 
 %		\draw[->] ($(h)+(15:-0.7)$) -- (h);
-		\draw[->,thick] (h) -- (i); \draw[->,thick] (i) -- (k);
+		\draw[->,very thick] (h) -- (i); \draw[->,very thick] (i) -- (k);
 %		\draw[->] (k) -- ($(k)+(-60:0.7)$);
 	\end{tikzpicture}
 \end{center}
@@ -101,8 +110,8 @@ Using only this constraint can result in a solution with sub-tours, so we add a 
 			\node[graphnode] (5) at (0,-1) {5}; \node[graphnode] (6) at (2,-1) {6}; \node[graphnode] (7) at (4,-1) {7};
 			
 			%% edges
-			\draw[thick] (1) -- (4) -- (6) -- (5) -- (1);
-			\draw[thick] (2) -- (3) -- (7) -- (2);
+			\draw[very thick] (1) -- (4) -- (6) -- (5) -- (1);
+			\draw[very thick] (2) -- (3) -- (7) -- (2);
 			%	\foreach \i in {0,1,...,6}{%
 				%		\foreach \j in {0,1,...,6} {%
 					%			\draw (\i) -- (\j);
@@ -123,7 +132,7 @@ Using only this constraint can result in a solution with sub-tours, so we add a 
 			\node[graphnode] (i) at (-1.9,-1.15) {$i$};
 			\node[graphnode] (j) at (0.2,0) {$j$};
 			
-			\draw[->] (i) -- (j);
+			\draw[->,very thick] (i) -- (j);
 		\end{tikzpicture}
 	\end{minipage}%\quad\quad%$\Leftarrow$\quad
 \end{center}
@@ -243,7 +252,7 @@ Here we have used two different methods, figure~\vref{fig:perturbations}, that r
 %	\draw[latex-,dashed,red!80,thick] ($(22.south)+(0,-0.3)$) -- ($(52.south)+(0,-0.3)$);
 \end{tikzpicture}
 }
-\caption{Perturbation methods for generating new solutions}
+\caption{Perturbation methods for generating new solutions. This methods will be used in local search and simulated annealing algorithms.}
 \label{fig:perturbations}
 \end{figure}
 

@@ -35,7 +35,7 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
     # until the acceptance rate is close to 1.
     q = 0
 
-    # TODO: consider using joblib with _tune_temp for i range(200)
+    # TODO: consider using joblib with _tune_temp for _ range(200)
     while q < 200:
 
         temp_iter = 100  # (outer) iterations for init_temp tuning
@@ -47,7 +47,7 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
         # compute acceptance rate
         chi = np.mean(res_temp.chi_seq)
 
-        if chi >= 0.9:  # too high, low the treshold
+        if chi >= 0.8:  # too high, low the treshold
             # acceptance rate satisfied
             break
 
