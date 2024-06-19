@@ -15,17 +15,17 @@ from tsp_solvers.solvers_utils import rand_init_guess
 from tsp_solvers.heuristics.local_search import _perturbation
 
 
-def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
+def solve_simulated_annealing(fun, cost, x0=None, maxiter_outer=100,
                               maxiter_inner=50, init_temp=1.,
-                              perturbation="swap-rev", cooling_rate=0.995,
+                              perturbation="reverse", cooling_rate=0.995,
                               random_state=42):
 
     _rng = np.random.default_rng(random_state)
 
     ## setup initial guess
-    if seq0 is None:
+    if x0 is None:
         # generate random starting sequence
-        seq0 = rand_init_guess(D.shape[0], _rng)
+        x0 = rand_init_guess(cost.shape[0], _rng)
 
     ## ****************************************** ##
 
@@ -36,12 +36,14 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
     q = 0
 
     # TODO: consider using joblib with _tune_temp for _ range(200)
+    # Choose an optimal initial temperature s.t. nearly all transitions are
+    # accepted at the first iterations. Averaged on maxiter_outer iterations
     while q < 200:
 
         temp_iter = 100  # (outer) iterations for init_temp tuning
 
         # run sim annealing with current init_temp
-        res_temp = _annealing(fun, D, seq0, maxiter_inner, perturbation,
+        res_temp = _annealing(fun, cost, x0, maxiter_inner, perturbation,
                               cooling_rate, temp_iter, init_temp, None)
 
         # compute acceptance rate
@@ -59,10 +61,11 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
     ## ****************************************** ##
 
     ## solve TSP
-    res = _annealing(fun, D, seq0, maxiter_inner, perturbation, cooling_rate,
+    res = _annealing(fun, cost, x0, maxiter_inner, perturbation, cooling_rate,
                      maxiter_outer, init_temp, random_state)
 
     res.q = q
+    # TODO: check this thing below
     res.chi_seq = np.append(res.chi_seq, 0.)  # plotting purposes
 
     return res
@@ -70,12 +73,10 @@ def solve_simulated_annealing(fun, D, seq0=None, maxiter_outer=100,
 
 # %% Base annealing algorithm
 
-# temperature parameter tuning
 def _annealing(fun, cost, x0, maxiter_inner, neighbor_meth, cooling_rate,
                maxiter_outer, init_temp, random_state=None):
     """
-    Choose an optimal initial temperature s.t. nearly all transitions are
-    accepted at the first iterations. Averaged on maxiter_outer iterations.
+    Simulated Annealing (SA) algorithm.
 
     random_state : int
         Generation seed, used for local search perturbation
@@ -195,6 +196,7 @@ def _metropolis(current_f, fk, temp):
     Returns
     -------
     criterion : bool
+
     """
 
     criterion = False

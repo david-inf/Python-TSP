@@ -14,11 +14,9 @@ from scipy.optimize import OptimizeResult
 from tsp_solvers import rand_init_guess
 
 
-# TODO: change to solve_local_search
-def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42,
-               generator=None):
+def solve_local_search(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
     """
-    2-exchange local search.
+    Local search methods.
 
     Parameters
     ----------
@@ -39,13 +37,11 @@ def solve_swap(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42,
     Returns
     -------
     result : OptimizeResult
+
     """
 
-    ## seed for initial guess and swap routines
-    if generator is None:
-        _rng = np.random.default_rng(random_state)
-    else:
-        _rng = generator
+    ## seed for initial guess and neighborhood operations
+    _rng = np.random.default_rng(random_state)
 
     if x0 is None:
         # generate random hamiltonian cycle [0,...,0]
@@ -106,7 +102,7 @@ def _perturbation(method, current_seq, generator):
     Parameters
     ----------
     method : string
-        Perturbation method.
+        Perturbation method. Can be: `swap` or `reverse`
     current_seq : array_like
         Sequence to perturbate.
     generator : numpy.random.Generator
@@ -126,14 +122,14 @@ def _perturbation(method, current_seq, generator):
     if method == "swap":
 
         # get two indices, i < j or i > j
-        i, j = _rand_city_idx(ncity, generator)  # np.array([i, j])
+        i, j = _rand_idx(ncity, generator)  # np.array([i, j])
         # split the two selected cities
         current_seq[i], current_seq[j] = current_seq[j], current_seq[i]
 
-    elif method == "swap-rev":
+    elif method == "reverse":
 
         # get two indices s.t. i < j
-        indices = _rand_city_idx(ncity, generator)
+        indices = _rand_idx(ncity, generator)
         i, j = np.sort(indices)
         # reverse indices between the two previously selected
         current_seq[i:j+1] = np.flip(current_seq[i:j+1])
@@ -143,7 +139,7 @@ def _perturbation(method, current_seq, generator):
     elif method == "insert":
 
         # get one random index
-        i = _rand_city_idx(ncity, generator, n_idx=1)[0]  # np.array([i])
+        i = _rand_idx(ncity, generator, n_idx=1)[0]  # np.array([i])
         # remove a city from the sequence
         
     # TODO: add constraints check?
@@ -151,7 +147,7 @@ def _perturbation(method, current_seq, generator):
     return current_seq
 
 
-def _rand_city_idx(ncity, generator, n_idx=2):
+def _rand_idx(ncity, generator, n_idx=2):
     """
     Draw random indices among all cities indices excluding start
     and end cities, assuming seq=[0,...,0].

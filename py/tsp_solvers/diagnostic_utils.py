@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
+# %% local search diagnostic
+
 def plot_fun(opt_res, ax=None):
 
     if ax is None:
@@ -67,6 +69,8 @@ def diagnostic(coords, opt_res):
     ## plot function performance
     plot_fun(opt_res, ax=axs[1])
 
+
+# %% simulated annealing diagnostic
 
 def _plot_chi(opt_res, ax=None):
     # fun_seq: array_like
@@ -182,6 +186,8 @@ def _plot_nodes(coords, ax=None):
     ax.set_xticklabels([])
     ax.set_yticklabels([])
 
+
+# %% optimization process animation
 
 def local_search_animation(opt_res, coords, filename, delay=100):
 

@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
+"""
+Main function for calling each solver
+
+"""
 
 from tsp_solvers.exact.brute_force import solve_brute_force
-from tsp_solvers.heuristics.local_search import solve_swap
+from tsp_solvers.heuristics.local_search import solve_local_search
 from tsp_solvers.heuristics.multi_start import solve_multi_start
 from tsp_solvers.heuristics.simulated_annealing import solve_simulated_annealing
 
 
-solvers_list = ["brute-force", "swap", "swap-rev", "multi-start", "simulated-annealing"]
+_solvers_list = ["brute-force", "swap", "reverse", "multi-start", "simulated-annealing"]
 
-solvers_dict = {"exact": ["brute-force"],
-                "heuristics": ["swap", "swap-rev"],
-                "meta-heuristics": ["multi-start", "simulated-annealing"]}
+_solvers_dict = {"exact": ["brute-force"],
+                 "heuristics": ["swap", "reverse"],
+                 "meta-heuristics": ["multi-start", "simulated-annealing"]}
 
 
 def solve_tsp(fun, cost, solver, seq0=None, options=None):
@@ -40,6 +44,7 @@ def solve_tsp(fun, cost, solver, seq0=None, options=None):
     Returns
     -------
     res : OptimizeResult
+
     """
 
     if solver not in solvers_list:
@@ -54,12 +59,15 @@ def solve_tsp(fun, cost, solver, seq0=None, options=None):
     res = None
 
     if solver == "brute-force":
-        res = solve_brute_force(fun, cost, seq0, **options)
         # raise RuntimeWarning("Brute force is computationally expensive.")
-    elif solver in ("swap", "swap-rev"):
-        res = solve_swap(fun, cost, seq0, solver, **options)
+        res = solve_brute_force(fun, cost, seq0, **options)
+
+    elif solver in ("swap", "reverse"):
+        res = solve_local_search(fun, cost, seq0, solver, **options)
+
     elif solver == "multi-start":
         res = solve_multi_start(fun, cost, **options)
+
     elif solver == "simulated-annealing":
         res = solve_simulated_annealing(fun, cost, **options)
 

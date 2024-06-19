@@ -45,39 +45,33 @@ local_search_animation(res_circle_swap, C1, "circle-swap.mp4")
 
 # %%% swap-rev local search
 
-res_circle_swaprev = solve_tsp(tsp_fun, D1, solver="swap-rev",
+res_circle_reverse = solve_tsp(tsp_fun, D1, solver="reverse",
     options=dict(maxiter=1000, random_state=42))
 
 # %%%%
 
-diagnostic(C1, res_circle_swaprev)
-plt.savefig(plots_dir + "circle-swaprev.pdf")
+diagnostic(C1, res_circle_reverse)
+plt.savefig(plots_dir + "circle-reverse.pdf")
 
 # %%%%
 
-local_search_animation(res_circle_swaprev, C1, "circle-swaprev.mp4")
+local_search_animation(res_circle_reverse, C1, "circle-reverse.mp4")
 
-# %%% simulated annealing with swap-rev
+# %%% simulated annealing
 
 res_circle_ann = solve_tsp(tsp_fun, D1, solver="simulated-annealing",
-    options=dict(perturbation="swap-rev", maxiter_outer=1000, maxiter_inner=800,
+    options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=800,
                  cooling_rate=0.995, random_state=42))
 
 # %%%%
-
-# diagnostic(C1, res_circle_ann)
-# plt.savefig(plots_dir + "circle-annealing.pdf")
 
 annealing_diagnostic(C1, res_circle_ann)
 plt.savefig(plots_dir + "circle-annealing-quad.pdf")
 
 # %%%%
 
-local_search_animation(res_circle_ann, C1, "circle-annealing.mp4")
-
-# %%%%
-
 annealing_animation(res_circle_ann, C1, "circle-annealing-quad.mp4")
+
 
 # %%% energy landscape
 
@@ -151,47 +145,28 @@ local_search_animation(res_rand_swap, C2, "rand-swap.mp4")
 
 # %%% swap-rev local search
 
-res_rand_swaprev = solve_tsp(tsp_fun, D2, solver="swap-rev",
+res_rand_reverse = solve_tsp(tsp_fun, D2, solver="reverse",
     options=dict(maxiter=1000, random_state=42))
 
 # %%%%
 
-diagnostic(C2, res_rand_swaprev)
-plt.savefig(plots_dir + "rand-swaprev.pdf")
+diagnostic(C2, res_rand_reverse)
+plt.savefig(plots_dir + "rand-reverse.pdf")
 
 # %%%%
 
-local_search_animation(res_rand_swaprev, C2, "rand-swaprev.mp4")
+local_search_animation(res_rand_reverse, C2, "rand-reverse.mp4")
 
-# %%% multi-start for swap-rev
-
-res_rand_multi_swaprev = solve_tsp(tsp_fun, D2, solver="multi-start",
-    options=dict(nsim=1000, local_search="swap-rev",
-        local_search_options=dict(maxiter=500, random_state=42)))
-
-# %%%%
-
-diagnostic(C2, res_rand_multi_swaprev)
-plt.savefig(plots_dir + "rand-multi-swaprev.pdf")
-
-
-# %%% simulated annealing with swap-rev
+# %%% simulated annealing
 
 res_rand_ann = solve_tsp(tsp_fun, D2, solver="simulated-annealing",
-    options=dict(perturbation="swap-rev", maxiter_outer=1000, maxiter_inner=800,
+    options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=800,
                  cooling_rate=0.995, random_state=42))
 
 # %%%%
 
-# diagnostic(C2, res_rand_ann)
-# plt.savefig(plots_dir + "rand-annealing.pdf")
-
 annealing_diagnostic(C2, res_rand_ann)
 plt.savefig(plots_dir + "rand-annealing-quad.pdf")
-
-# %%%%
-
-local_search_animation(res_rand_ann, C2, "rand-annealing.mp4")
 
 # %%%%
 
