@@ -15,6 +15,7 @@ Find the shortest possible route that connects all cities:
 Perturbation methods:
 - `swap`: draw two random indices $\{i,j\}$, swap the corresponding cities in the sequence (canonical ensemble)
 - `reverse`: draw two random indices $\{i,j\}$ s.t. $i < j$, reverse the sequence between those two cities (canonical ensemble)
+- `remove`: 
 - `insert`: 
 
 

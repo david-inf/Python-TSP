@@ -138,7 +138,9 @@ def annealing_diagnostic(coords, opt_res):
 
 # %% Energy landscape
 
-def energy_landscape(solvers_list, size_grid, ax=None):
+def energy_landscape(solvers_list, v_line=None, ax=None):
+
+    size_grid = [opt.x.size-1 for opt in solvers_list]
 
     cols = len(solvers_list)//2
     fig, axs = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols,
@@ -152,13 +154,10 @@ def energy_landscape(solvers_list, size_grid, ax=None):
 
         ax.set_title(f"N: {size_grid[i]}, k: {solver.nit_ls}")
 
-    ## plot objective function performance
-    # fig2, axs2 = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols,
-    #                         layout="constrained")
+        ## add vertical lines
+        if v_line is not None:
 
-    # for i, ax in enumerate(axs2.flat):
-
-    #     plot_fun(solvers_list[i], ax)
+            ax.axvline(x=v_line[i], linestyle="--")
 
     ## print local minima ratio
     ratio_df = pd.DataFrame({"N": size_grid,

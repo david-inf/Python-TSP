@@ -7,7 +7,7 @@ In order to run the algorithms, we first explore the \emph{solution space} using
 
 Exploring the solution space means to empirically find the \emph{energy landscape}, that is the distribution of $f(x^\ast)$ for each local minima that the algorithms have found. Figure~\vref{fig:res-energy} shows these results.
 
-
+We then select one of the problem instances and solve
 
 
 
@@ -27,19 +27,20 @@ The energy landscape means to empirically find the distribution of the objective
 
 See figure
 
+% il panorama dell'energia è dipendente dal numero di iterazioni che si lasciano fare all'algoritmo
 
 
 \begin{figure}
 \centering
-\subfloat[\emph{Local search with \texttt{reverse} method}]%
+\subfloat[\emph{Local search, circular layout}]%
 	{\includegraphics[width=0.49\textwidth]{circle-reverse-energy}} \,
-\subfloat[\emph{Simulated annealing}]%
-	{\includegraphics[width=0.49\textwidth]{circle-annealing-energy}} \\
-\subfloat[\emph{Local search with \texttt{reverse} method}]%
-	{\includegraphics[width=0.49\textwidth]{rand-reverse-energy}} \,
-\subfloat[\emph{Simulated annealing}]%
-	{\includegraphics[width=0.49\textwidth]{rand-annealing-energy}}
-\caption{Local search and SA energy view for circular and random layouts}
+\subfloat[\emph{Local search, random layout}]%
+	{\includegraphics[width=0.49\textwidth]{rand-reverse-energy}} % \\
+%\subfloat[\emph{Local search with \texttt{reverse} method}]%
+%	{\includegraphics[width=0.49\textwidth]{rand-reverse-energy}} \,
+%\subfloat[\emph{Simulated annealing}]%
+%	{\includegraphics[width=0.49\textwidth]{rand-annealing-energy}}
+\caption{Local search with \texttt{reverse} method and SA energy landscapes for different TSP instances}
 \label{fig:res-energy}
 \end{figure}
 

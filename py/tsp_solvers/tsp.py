@@ -3,15 +3,17 @@
 import numpy as np
 import numpy.linalg as la
 
+# from tsp_solvers import check_constraint
+
 
 def tsp_fun(seq, D):
     # seq: cities sequence
     # D: distance matrix
 
     ## check soft constraint
-    if not check_constraint(seq):
+    # if not check_constraint(seq):
 
-        raise RuntimeError("Soft constraint not satisfied.")
+        # raise RuntimeError("Cycle covering constraint not satisfied.")
 
     # compute adjacency matrix
     A = adjacency(seq)
@@ -40,18 +42,6 @@ def adjacency(seq):
         A[from_city, to_city] = 1
 
     return A
-
-
-def check_constraint(seq):
-
-    ncity = seq.size - 1
-    A = adjacency(seq)
-
-    ## check that each node has one incoming and one outgoing edge
-    sum_rows_cols = np.sum(np.sum(A, axis=0) + np.sum(A, axis=1))
-    constraint1 = sum_rows_cols == 2 * ncity
-
-    return constraint1
 
 
 def random_seq(ncity, seed=42):

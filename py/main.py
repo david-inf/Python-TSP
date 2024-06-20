@@ -12,7 +12,7 @@ from tsp_solvers.diagnostic_utils import (
 from tsp_solvers.optimize import solve_tsp
 
 plots_dir = "./plots/"
-N_grid = [10, 15, 20, 30]
+N_grid = [15, 30, 40, 50]
 N = 40
 
 # %% TSP circular
@@ -74,19 +74,23 @@ annealing_animation(res_circle_ann, C1, "circle-annealing-quad.mp4")
 
 # %%% energy landscape
 
-def solve_multiple_ls(cost, size_grid, nsim, ls_iters=[30, 50, 100, 150]):
+def solve_multiple_ls(cost_list, nsim, ls_iters):
 
     reverse_solvers = []
     # annealing_solvers = []
 
-    for i in range(len(size_grid)):
+    for i in range(len(cost_list)):
     
         ## local search
-        res_reverse = solve_tsp(tsp_fun, cost[i], "multi-start",
-            options=dict(base_alg="local-search", nsim=nsim, random_state=42, n_jobs=6,
-                base_options=dict(solver="reverse", maxiter=ls_iters[i], random_state=None)))
+        res_ls = []
+        for j in range(len(ls_iters)):
+            res_reverse = solve_tsp(tsp_fun, cost_list[i], "multi-start",
+                options=dict(base_alg="local-search", nsim=nsim, random_state=42, n_jobs=6,
+                    base_options=dict(solver="reverse", maxiter=ls_iters[j], random_state=None)))
 
-        reverse_solvers.append(res_reverse)
+            res_ls.append(res_reverse)
+
+        reverse_solvers.append(res_ls)
     
         ## sim annealing
         # res_annealing = solve_tsp(tsp_fun, cost[i], "multi-start",
@@ -100,12 +104,14 @@ def solve_multiple_ls(cost, size_grid, nsim, ls_iters=[30, 50, 100, 150]):
 
 # %%%%
 
-circle_energies_ls = solve_multiple_ls(D_circle, N_grid, 300, [100,300,800,1500])
+energies_circle_ls = solve_multiple_ls(D_circle, 1000, [200,500,800,1000])
 
 # %%%%
 
-energy_landscape(circle_energies_ls, N_grid)
-plt.savefig(plots_dir + "circle-reverse-energy.pdf")
+for i in range(4):
+    energy_landscape(energies_circle_ls[i])
+
+# plt.savefig(plots_dir + "circle-reverse-energy.pdf")
 
 ## get unique solution
 # np.unique(solvers_list[0][0].x_seq, return_counts=True, axis=0)
@@ -198,15 +204,18 @@ annealing_animation(res_rand_ann, C2, "rand-annealing-quad.mp4")
 
 # %%% Energy landscape
 
-energies_rand = solve_multiple_ls(D_rand, N_grid)
+energies_rand_ls = solve_multiple_ls(D_rand, N_grid, 1000, [100, 300, 500, 1000])
 
 # %%%%
 
-energy_landscape(energies_rand[0], N_grid)
+energy_landscape(energies_rand_ls, N_grid)
 plt.savefig(plots_dir + "rand-reverse-energy.pdf")
 
-energy_landscape(energies_rand[1], N_grid)
-plt.savefig(plots_dir + "rand-annealing-energy.pdf")
+# energy_landscape(energies_rand[0], N_grid)
+# plt.savefig(plots_dir + "rand-reverse-energy.pdf")
+
+# energy_landscape(energies_rand[1], N_grid)
+# plt.savefig(plots_dir + "rand-annealing-energy.pdf")
 
 
 

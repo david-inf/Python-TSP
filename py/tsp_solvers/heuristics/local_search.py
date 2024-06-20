@@ -11,7 +11,7 @@ import time
 import numpy as np
 from scipy.optimize import OptimizeResult
 
-from tsp_solvers import rand_init_guess
+from tsp_solvers import rand_init_guess, check_constraint
 
 
 def solve_local_search(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
@@ -93,8 +93,6 @@ def solve_local_search(fun, cost, x0=None, solver="swap", maxiter=100, random_st
     return res
 
 
-# %% Utils
-
 def _perturbation(method, current_seq, generator):
     """
     Sequence perturbation with a specified method. Neighborhood operator.
@@ -134,6 +132,11 @@ def _perturbation(method, current_seq, generator):
         # reverse indices between the two previously selected
         current_seq[i:j+1] = np.flip(current_seq[i:j+1])
 
+    ## constraints check
+    if not check_constraint(current_seq):
+
+        raise RuntimeError("Cycle covering constraint not satistifed.")
+
     # ************************#
 
     elif method == "insert":
@@ -141,8 +144,6 @@ def _perturbation(method, current_seq, generator):
         # get one random index
         i = _rand_idx(ncity, generator, n_idx=1)[0]  # np.array([i])
         # remove a city from the sequence
-        
-    # TODO: add constraints check?
 
     return current_seq
 
