@@ -22,12 +22,10 @@ Algorithms:
 - Exact:
     - Brute-force: check all possible permutations
 - Heuristics:
-    - 2-exchange
+    - 2-exchange: `swap` and `reverse` neighborhood operators
     - k-exchange??
 - Meta-heuristics
     - Multi-start
-        - 2-exchange
-        - k-exchange??
     - Simulated annealing
         - `reverse` perturbation method
         - Geometric cooling schedule $T_{k+1}=\alpha T_k$

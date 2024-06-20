@@ -155,10 +155,10 @@ inner sep=1.5pt,outer sep=0pt]
 % Bibliography
 % -------------------------------- %
 % Activate bibliography when you are ready
-%\usepackage[autostyle,italian=guillemets,babel]{csquotes}
-%\usepackage[backend=biber,useprefix,style=ieee,backref,hyperref,defernumbers=true]{biblatex}
+\usepackage[autostyle,italian=guillemets,babel]{csquotes}
+\usepackage[backend=biber,useprefix,style=ieee,backref,hyperref,defernumbers=true]{biblatex}
 %\usepackage[backend=biber,useprefix,style=authoryear-comp,hyperref,defernumbers=true]{biblatex}
-%\addbibresource{phys-bib.bib} % create Db
+\addbibresource{phys-bib.bib} % create Db
 % -------------------------------- %
 \usepackage{hyperref}
 \hypersetup{%
@@ -227,11 +227,12 @@ References
 % ************************************************************************************* %
 \input{./Sections/intro.tex}
 \input{./Sections/algs.tex}
-\input{./Sections/results.tex}
+\input{./Sections/results.tex}\cleardoublepage
 % ************************************************************************************* %
 % BACKMATTER %
 % ************************************************************************************* %
-%\phantomsection
-%\inToc{\refname}
-%\printbibliography
+\nocite{*}
+\phantomsection
+\inToc{\refname}
+\printbibliography
 \end{document}

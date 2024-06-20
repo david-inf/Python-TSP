@@ -2,6 +2,7 @@
 
 import copy
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
@@ -146,11 +147,10 @@ def energy_landscape(solvers_list, size_grid, ax=None):
     ## plot energy landscape
     for i, ax in enumerate(axs.flat):
 
-        solver = solvers_list[i][0]
-        iters = solvers_list[i][1]
+        solver = solvers_list[i]
         ax.hist(solver.fun_seq, density=True, stacked=True)
 
-        ax.set_title(f"N: {size_grid[i]}, k: {iters}")
+        ax.set_title(f"N: {size_grid[i]}, k: {solver.nit_ls}")
 
     ## plot objective function performance
     # fig2, axs2 = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols,
@@ -160,9 +160,14 @@ def energy_landscape(solvers_list, size_grid, ax=None):
 
     #     plot_fun(solvers_list[i], ax)
 
+    ## print local minima ratio
+    ratio_df = pd.DataFrame({"N": size_grid,
+                             "Ratio": [opt.ratio for opt in solvers_list]})
 
-# ************************************************** #
-## Animation ##
+    print(ratio_df)
+
+
+# %% Optimization process animation
 
 def _plot_nodes(coords, ax=None):
     # coords: coordinates matrix
@@ -189,8 +194,6 @@ def _plot_nodes(coords, ax=None):
     ax.set_xticklabels([])
     ax.set_yticklabels([])
 
-
-# %% optimization process animation
 
 def local_search_animation(opt_res, coords, filename, delay=100):
 

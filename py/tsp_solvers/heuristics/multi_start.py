@@ -51,7 +51,8 @@ def solve_multi_start(fun, cost, base_alg, nsim=1000, random_state=42,
         # check base algorithm for multi-start
         raise RuntimeError("Unknown base algorithm.")
 
-    _rng = np.random.default_rng(random_state)  # initial guess Generator
+    # initial guess Generator, guarantees that each x0 will be unique
+    _rng = np.random.default_rng(random_state)
 
     _start = time.time()
 
@@ -75,9 +76,12 @@ def solve_multi_start(fun, cost, base_alg, nsim=1000, random_state=42,
 
     res = OptimizeResult(fun=results[-1].fun, x=results[-1].x, nit=nsim,
                          solver=_solver, x_seq=x_seq,
-                         # local_search=local_search_options,
-                         # annealing=annealing_options,
                          runtime=(_end - _start), fun_seq=f_seq)
+
+    ## ratio unique local minima / nsim
+    res.ratio = np.unique(x_seq, axis=0).shape[0] / nsim
+    if base_alg == "local-search":
+        res.nit_ls = results[-1].nit
 
     return res
 

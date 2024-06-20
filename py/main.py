@@ -23,7 +23,7 @@ C_circle = list(C_circle)
 
 D1, C1 = circle_cities(N)
 
-# %%%
+# %%% plot graph
 
 _plot_nodes(C1)
 plt.savefig(plots_dir + "circle-nodes.pdf")
@@ -86,10 +86,7 @@ def solve_multiple_ls(cost, size_grid, nsim, ls_iters=[30, 50, 100, 150]):
             options=dict(base_alg="local-search", nsim=nsim, random_state=42, n_jobs=6,
                 base_options=dict(solver="reverse", maxiter=ls_iters[i], random_state=None)))
 
-        ## different local minima / nsim
-        # ratio = 
-
-        reverse_solvers.append((res_reverse, ls_iters[i]))
+        reverse_solvers.append(res_reverse)
     
         ## sim annealing
         # res_annealing = solve_tsp(tsp_fun, cost[i], "multi-start",
@@ -103,7 +100,7 @@ def solve_multiple_ls(cost, size_grid, nsim, ls_iters=[30, 50, 100, 150]):
 
 # %%%%
 
-circle_energies_ls = solve_multiple_ls(D_circle, N_grid, 300, [100,500,800,1000])
+circle_energies_ls = solve_multiple_ls(D_circle, N_grid, 300, [100,300,800,1500])
 
 # %%%%
 
@@ -150,7 +147,7 @@ C_rand = list(C_rand)
 
 D2, C2 = generate_cities(N)
 
-# %%%
+# %%% plot graph
 
 _plot_nodes(C2)
 plt.savefig(plots_dir + "rand-nodes.pdf")
@@ -201,7 +198,7 @@ annealing_animation(res_rand_ann, C2, "rand-annealing-quad.mp4")
 
 # %%% Energy landscape
 
-energies_rand = solve_multiple(D_rand, N_grid)
+energies_rand = solve_multiple_ls(D_rand, N_grid)
 
 # %%%%
 
