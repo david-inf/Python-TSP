@@ -14,7 +14,7 @@ from scipy.optimize import OptimizeResult
 from tsp_solvers import rand_init_guess, check_constraint
 
 
-def solve_local_search(fun, cost, x0=None, solver="swap", maxiter=100, random_state=42):
+def solve_local_search(fun, cost, x0=None, method="swap", maxiter=100, random_state=42):
     """
     Local search methods.
 
@@ -24,10 +24,10 @@ def solve_local_search(fun, cost, x0=None, solver="swap", maxiter=100, random_st
         TSP objective function.
     D : array_like
         Distance (cost) matrix.
-    seq0 : array_like, optional
+    x0 : array_like, optional
         Initial guess. The default is None.
-    solver : string, optional
-        Local search algorithm. The default is "swap".
+    method : string, optional
+        Local search neighbor operator. The default is "swap".
     maxiter : int, optional
         Maximum number of iteraions. The default is 100.
     random_state : int, optional
@@ -69,7 +69,7 @@ def solve_local_search(fun, cost, x0=None, solver="swap", maxiter=100, random_st
         xk = best_x.copy()
 
         ## 2-exchange procedure, smooth the hard constraint
-        xk = _perturbation(solver, xk, _rng)
+        xk = _perturbation(method, xk, _rng)
         ## compute current objective function
         fk = fun(xk, cost)
 
@@ -87,8 +87,9 @@ def solve_local_search(fun, cost, x0=None, solver="swap", maxiter=100, random_st
         x_seq[k] = best_x.copy()
         time_seq[k] = time.time() - _start
 
-    res = OptimizeResult(fun=best_f, x=best_x, nit=k, solver=solver,
-                         runtime=time_seq[k], x_seq=x_seq, fun_seq=f_seq)
+    res = OptimizeResult(
+        fun=best_f, x=best_x, nit=k, solver="Local search with " + method,
+        runtime=time_seq[k], x_seq=x_seq, fun_seq=f_seq)
 
     return res
 

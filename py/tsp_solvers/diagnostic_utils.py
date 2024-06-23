@@ -44,8 +44,8 @@ def plot_points(coords, opt_res, ax=None):
     ax.plot(x_seq, y_seq)
     ax.scatter(x_seq, y_seq, marker="o", color=colors, s=10)
 
-    for i in range(coords.shape[0]):
-        ax.text(coords[i,0], coords[i,1], f"{i}")
+    # for i in range(coords.shape[0]):
+    #     ax.text(coords[i,0], coords[i,1], f"{i}")
 
     ax.grid(True, which="both", axis="both")
     ax.set_xlabel(r"$x$")
@@ -142,8 +142,8 @@ def energy_landscape(solvers_list, v_line=None, ax=None):
 
     size_grid = [opt.x.size-1 for opt in solvers_list]
 
-    cols = len(solvers_list)//2
-    fig, axs = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols,
+    cols = len(solvers_list)//2+1
+    fig, axs = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols+1,
                             layout="constrained")
 
     ## plot energy landscape
@@ -166,6 +166,28 @@ def energy_landscape(solvers_list, v_line=None, ax=None):
     print(ratio_df)
 
 
+def energy_landscape_ann(solvers_list, v_line=None, ax=None):
+
+    size_grid = [opt.x.size-1 for opt in solvers_list]
+
+    cols = len(solvers_list)//2+1
+    fig, axs = plt.subplots(ncols=cols, nrows=len(solvers_list)-cols+1,
+                            layout="constrained")
+
+    ## plot energy landscape
+    for i, ax in enumerate(axs.flat):
+
+        solver = solvers_list[i]
+        ax.hist(solver.fun_seq, density=True, stacked=True)
+
+        ax.set_title(f"N: {size_grid[i]}")
+
+        ## add vertical lines
+        if v_line is not None:
+
+            ax.axvline(x=v_line[i], linestyle="--")
+
+
 # %% Optimization process animation
 
 def _plot_nodes(coords, ax=None):
@@ -183,8 +205,8 @@ def _plot_nodes(coords, ax=None):
 
     ax.scatter(x_coord, y_coord, marker="o", color=colors, s=15)
 
-    for i in range(coords.shape[0]):
-        ax.text(coords[i,0], coords[i,1], f"{i}")
+    # for i in range(coords.shape[0]):
+    #     ax.text(coords[i,0], coords[i,1], f"{i}")
 
     ax.grid(True, which="both", axis="both")
     ax.set_xlabel(r"$x$")
@@ -261,6 +283,7 @@ def annealing_animation(opt_res, coords, filename, delay=100):
 
     ## draw best and accepted objective function
     axs[0, 1].set_xlim(0.9, f_history.size)
+    axs[0, 1].set_xscale("log")
     axs[0, 1].set_ylim(np.min(f_history)*0.95, np.max(f_history)*1.05)
     axs[0, 1].grid(True, which="both", axis="both")
     axs[0, 1].set_xlabel("iterations")
@@ -268,10 +291,10 @@ def annealing_animation(opt_res, coords, filename, delay=100):
     line_fun, = axs[0, 1].plot([], [], lw=2)  # null objective function
     line_fun_acc, = axs[0, 1].plot([], [], lw=2)  # null accepted obj fun
     axs[0, 1].set_title(opt_res.solver)
-    axs[0, 1].set_xscale("log")
 
     ## acceptance rate
-    axs[1, 0].set_xlim(0, chi_history.size)
+    axs[1, 0].set_xlim(0.9, chi_history.size)
+    axs[1, 0].set_xscale("log")
     axs[1, 0].set_ylim(0, 1)
     axs[1, 0].grid(True, which="both", axis="both")
     axs[1, 0].set_xlabel("iterations")
@@ -280,7 +303,8 @@ def annealing_animation(opt_res, coords, filename, delay=100):
     axs[1, 0].set_title("Acceptance rate")
 
     ## temperature
-    axs[1, 1].set_xlim(0, temp_history.size)
+    axs[1, 1].set_xlim(0.9, temp_history.size)
+    axs[1, 1].set_xscale("log")
     axs[1, 1].set_ylim(0, np.max(temp_history)*1.05)
     axs[1, 1].grid(True, which="both", axis="both")
     axs[1, 1].set_xlabel("iterations")
@@ -310,10 +334,10 @@ def annealing_animation(opt_res, coords, filename, delay=100):
         line_fun_acc.set_data(seq, f_acc_current_seq)
 
         ## acceptance rate
-        line_chi.set_data(np.arange(frame+1), chi_current_seq)
+        line_chi.set_data(seq, chi_current_seq)
 
         ## temperature
-        line_temp.set_data(np.arange(frame+1), temp_current_seq)
+        line_temp.set_data(seq, temp_current_seq)
 
         return line_path, annotation, line_fun, line_fun_acc, line_chi, line_temp
 

@@ -72,11 +72,11 @@ def solve_multi_start(fun, cost, base_alg, nsim=1000, random_state=42,
     f_seq = np.array([opt.fun for opt in results])
     x_seq = np.row_stack([opt.x for opt in results])
 
-    _solver = "multi-start on " + base_alg
-
-    res = OptimizeResult(fun=results[-1].fun, x=results[-1].x, nit=nsim,
-                         solver=_solver, x_seq=x_seq,
-                         runtime=(_end - _start), fun_seq=f_seq)
+    res = OptimizeResult(
+        fun=results[-1].fun, x=results[-1].x, nit=nsim,
+        solver="multi-start on " + base_alg,
+        solver_obj=results[-1],
+        x_seq=x_seq, runtime=(_end - _start), fun_seq=f_seq)
 
     ## ratio unique local minima / nsim
     res.ratio = np.unique(x_seq, axis=0).shape[0] / nsim
