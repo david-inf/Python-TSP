@@ -1,4 +1,4 @@
-# Travelling salesman problem
+# Tryna solve the Travelling Salesman Problem
 
 Statistical physics and complex systems final project
 
@@ -6,26 +6,20 @@ Statistical physics and complex systems final project
 
 The problem: Travelling Salesman Problem, minimum Hamiltonian cycle problem. Find the shortest route that connects all cities.
 
-Given a set of cities:
-**place image**
-
-Find the shortest possible route that connects all cities:
-**place image with feasible solution**
+## Recipes
 
 Perturbation methods:
-- `swap`: draw two random indices $\{i,j\}$, swap the corresponding cities in the sequence (canonical ensemble)
-- `reverse`: draw two random indices $\{i,j\}$ s.t. $i < j$, reverse the sequence between those two cities (canonical ensemble)
-- `remove`: 
-- `insert`: 
-
+- [x] `swap`: draw two random indices $\{i,j\}$, swap the corresponding cities in the sequence (canonical ensemble)
+- [x] `reverse`: draw two random indices $\{i,j\}$ s.t. $i < j$, reverse the sequence between those two cities (canonical ensemble)
+- [ ] `remove`: 
+- [ ] `insert`: 
 
 Algorithms:
-- Exact:
+- **Exact**:
     - Brute-force: check all possible permutations
-- Heuristics:
+- **Heuristics**:
     - 2-exchange: `swap` and `reverse` neighborhood operators
-    - k-exchange??
-- Meta-heuristics
+- **Meta-heuristics**:
     - Multi-start
     - Simulated annealing
         - `reverse` perturbation method
@@ -35,8 +29,8 @@ Algorithms:
 
 Local search with `reverse` perturbation
 
-<video src="./py/anims/local_search-rev.mp4" width="320" height="240" controls></video>
+https://github.com/david-inf/Python-TSP/assets/76067448/868a057a-9af2-41a6-b0de-d6feefddb97a
 
 Simulated Annealing
 
-<video src="./py/anims/sim-annealing.mp4" width="320" height="240" controls></video>
+https://github.com/david-inf/Python-TSP/assets/76067448/56218497-0209-496a-bf69-de4ed1858b12
