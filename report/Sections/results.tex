@@ -9,10 +9,13 @@ Exploring the solution space means to empirically find the \emph{energy landscap
 
 We keep track of each final objective function value and each solution because two different solutions may have the same $f$ (in circular layout the circular path clockwise and counter-clockwise), so the \emph{ratio} between the number of unique local minima and starting solutions can be computed.
 
-% TODO: increase k to 1000 and 1500?
 Figure~\vref{fig:res-energy} shows these results. Increasing the number of local search iterations $k$ for a given problem instance reduces the ratio and we can see that the mode of the distribution shifts towards left, however as the problem size increases, the number of sharp local minima on which the algorithms may fall increases as well.
 
-When the size of the problem is quite large $N=50$ the local search needs a large number of iterations, so we can increase further $k$ or move to another algorithm. However, local search will eventually fall in a local minima, but the multi-start approach can ease this situation since the local search is dependent on the starting solution and we provide a pool of $x^0$.\par\medskip
+A greater size of the problem must see a larger number of iterations for the local search, we see that the mode shifts left and the distribution has a normal shape, this means that the most frequent local minimum isn't the best one since there are other values on the left. The random layout has more local minima on which the local search may fall.
+
+When the size of the problem is quite large $N=50$ the local search needs a large number of iterations, so we can increase further $k$ or move to another algorithm. However, local search will eventually fall in a local minima, but the multi-start approach can ease this situation since the local search is dependent on the starting solution and we provide a pool of $x^0$.
+
+While the simulated annealing can escape sharp local minima, it is still dependent by the starting solution, so a multi-start approach can help this algorithm too. For both algorithms we see that the random layout objective function has much more local minima and even the SA might fall in one of them if not carefully tuned, i.e. increase $k$ and most important $L_k$.\par\medskip
 
 Now we can move forward to solve the problem instances with the previous methods, figure~\ref{fig:res-local-search} displays the diagnostic for the best local search obtained through the multi-start and figure~\vref{fig:res-sim-annealing} for the simulated annealing.
 
@@ -23,19 +26,19 @@ In the simulated annealing diagnostic best and last accepted objective function 
 
 \begin{figure}
 \centering
-\subfloat[\emph{Local search, circular layout, $\text{ratio}=\numlist{1.0;0.779}$}]%
+\subfloat[\emph{Local search, circular layout, $\text{ratio}=\numlist{0.764;0.002}$}]%
 	{\includegraphics[width=0.49\textwidth]{circle-reverse-energy0}} \,
-\subfloat[\emph{Local search, circular layout, $\text{ratio}=\numlist{1.0;1.0}$}]%
+\subfloat[\emph{Local search, circular layout, $\text{ratio}=\numlist{1.0;0.373}$}]%
 	{\includegraphics[width=0.49\textwidth]{circle-reverse-energy1}} \\
-\subfloat[\emph{Local search, random layout, $\text{ratio}=\numlist{1.0;0.995}$}]%
+\subfloat[\emph{Local search, random layout, $\text{ratio}=\numlist{0.989;0.323}$}]%
 	{\includegraphics[width=0.49\textwidth]{rand-reverse-energy0}} \,
-\subfloat[\emph{Local search, random layout, $\text{ratio}=\numlist{1.0;1.0}$}]%
+\subfloat[\emph{Local search, random layout, $\text{ratio}=\numlist{1.0;0.998}$}]%
 	{\includegraphics[width=0.49\textwidth]{rand-reverse-energy1}} \\
 \subfloat[\emph{Simulated annealing, circular layout, $\text{ratio}=\numlist{0.025;0.985}$}]%
 	{\includegraphics[width=0.49\textwidth]{circle-annealing-energy}} \,
 \subfloat[\emph{Simulated annealing, random layout, $\text{ratio}=\numlist{0.465;1.0}$}]%
 	{\includegraphics[width=0.49\textwidth]{rand-annealing-energy}}
-\caption{Local search with \texttt{reverse} method ($k$ iterations) and SA ($k=500$, $L_k=200$, $\alpha=0.995$) energy landscapes for $N=\numlist{30;50}$ instances}
+\caption{Local search with \texttt{reverse} method ($k$ iterations, 1000 starting solutions) and SA ($k=500$, $L_k=200$, $\alpha=0.995$, 200 starting solutions) energy landscapes for $N=\numlist{30;50}$ instances}
 \label{fig:res-energy}
 \end{figure}
 
@@ -61,7 +64,7 @@ In the simulated annealing diagnostic best and last accepted objective function 
 	{\includegraphics[width=0.49\textwidth]{rand-reverse1}} \,
 \subfloat[\emph{\texttt{reverse} method on circular layout}]%
 	{\includegraphics[width=0.49\textwidth]{rand-reverse2}}
-\caption{Local search algorithms ($k=1000$) performance on problem instances. Used a multi-start procedure for selecting the best solver}
+\caption{Local search algorithms ($k=1000$) performance on problem instances. Used a multi-start procedure for selecting the best solver from a pool of 1000 starting solutions}
 \label{fig:res-local-search}
 \end{figure}
 \cleardoublepage
@@ -78,6 +81,6 @@ In the simulated annealing diagnostic best and last accepted objective function 
 	{\includegraphics[width=0.49\textwidth]{rand-annealing-quad1}} \,
 \subfloat[\emph{Random layout}]%
 	{\includegraphics[width=0.49\textwidth]{rand-annealing-quad2}}
-\caption{Simulated annealing ($k=1000$, $L_k=1000$, $\alpha=0.995$) performance on problem instances}
+\caption{Simulated annealing ($k=1000$, $L_k=500$, $\alpha=0.995$) performance on problem instances. Best solution selected through a multi-start method from 10 different starting solutions}
 \label{fig:res-sim-annealing}
 \end{figure}

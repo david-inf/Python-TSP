@@ -83,13 +83,23 @@ local_search_animation(res_circle_reverse2, C2_circle, "circle-reverse.mp4")
 
 # %%% simulated annealing
 
-res_circle_ann1 = solve_tsp(tsp_fun, D1_circle, solver="simulated-annealing",
-    options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
-                 cooling_rate=0.995, random_state=None))
+# res_circle_ann1 = solve_tsp(tsp_fun, D1_circle, solver="simulated-annealing",
+#     options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
+#                  cooling_rate=0.995, random_state=None))
 
-res_circle_ann2 = solve_tsp(tsp_fun, D2_circle, solver="simulated-annealing",
-    options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
-                 cooling_rate=0.995, random_state=None))
+# res_circle_ann2 = solve_tsp(tsp_fun, D2_circle, solver="simulated-annealing",
+#     options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
+#                  cooling_rate=0.995, random_state=None))
+
+res_circle_ann1 = solve_tsp(tsp_fun, D1_circle, solver="multi-start",
+    options=dict(base_alg="sim-annealing", nsim=10, random_state=42, n_jobs=8,
+        base_options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=500,
+            cooling_rate=0.995, random_state=None))).solver_obj
+
+res_circle_ann2 = solve_tsp(tsp_fun, D2_circle, solver="multi-start",
+    options=dict(base_alg="sim-annealing", nsim=10, random_state=42, n_jobs=8,
+        base_options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=500,
+            cooling_rate=0.995, random_state=None))).solver_obj
 
 # %%%%
 
@@ -115,7 +125,7 @@ def solve_multiple_ls(cost_list, nsim, ls_iters):
         res_ls = []
         for j in range(len(ls_iters)):
             res_reverse = solve_tsp(tsp_fun, cost_list[i], "multi-start",
-                options=dict(base_alg="local-search", nsim=nsim, random_state=42, n_jobs=6,
+                options=dict(base_alg="local-search", nsim=nsim, random_state=42, n_jobs=8,
                     base_options=dict(method="reverse", maxiter=ls_iters[j], random_state=None)))
 
             res_ls.append(res_reverse)
@@ -160,7 +170,7 @@ def solve_multiple_ann(cost_list, nsim):
 
 # %%%%
 
-energies_circle_ls = solve_multiple_ls(D_circle, 1000, [500,1000])
+energies_circle_ls = solve_multiple_ls(D_circle, 1000, [1000,5000])
 energies_circle_ann = solve_multiple_ann(D_circle, 200)
 
 # circle_ann = solve_multiple_ann(D_circle)
@@ -240,13 +250,23 @@ local_search_animation(res_rand_reverse2, C2_rand, "rand-reverse.mp4")
 
 # %%% simulated annealing
 
-res_rand_ann1 = solve_tsp(tsp_fun, D1_rand, solver="simulated-annealing",
-    options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
-                 cooling_rate=0.995, random_state=42))
+# res_rand_ann1 = solve_tsp(tsp_fun, D1_rand, solver="simulated-annealing",
+#     options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
+#                  cooling_rate=0.995, random_state=42))
 
-res_rand_ann2 = solve_tsp(tsp_fun, D2_rand, solver="simulated-annealing",
-    options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
-                 cooling_rate=0.995, random_state=42))
+# res_rand_ann2 = solve_tsp(tsp_fun, D2_rand, solver="simulated-annealing",
+#     options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=1000,
+#                  cooling_rate=0.995, random_state=42))
+
+res_rand_ann1 = solve_tsp(tsp_fun, D1_rand, solver="multi-start",
+    options=dict(base_alg="sim-annealing", nsim=10, random_state=42, n_jobs=8,
+        base_options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=500,
+            cooling_rate=0.995, random_state=None))).solver_obj
+
+res_rand_ann2 = solve_tsp(tsp_fun, D2_rand, solver="multi-start",
+    options=dict(base_alg="sim-annealing", nsim=10, random_state=42, n_jobs=8,
+        base_options=dict(perturbation="reverse", maxiter_outer=1000, maxiter_inner=500,
+            cooling_rate=0.995, random_state=None))).solver_obj
 
 # %%%%
 
@@ -261,7 +281,7 @@ annealing_animation(res_rand_ann2, C2_rand, "rand-annealing-quad.mp4")
 
 # %%% Energy landscape
 
-energies_rand_ls = solve_multiple_ls(D_rand[:2], 1000, [500,1000])
+energies_rand_ls = solve_multiple_ls(D_rand[:2], 1000, [1000,5000])
 energies_rand_ann = solve_multiple_ann(D_rand[:2], 200)
 
 # %%%%

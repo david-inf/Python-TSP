@@ -75,4 +75,6 @@ def solve_tsp(fun, cost, solver, x0=None, options=None):
 
         return "Optimization process went wrong"
 
+    # TODO: add constraint check
+
     return res
