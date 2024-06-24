@@ -80,7 +80,7 @@ The simulated annealing uses the following parameters:
 
 Inside each transition a new feasible solution $x^t$ is generated as in the local search through methods from figure~\vref{fig:perturbations}; from the statistical mechanics perspective, these perturbations allows to work in the canonical ensemble: the energy $E_t$ (the objective function) is free to fluctuate but the number of particles (nodes in the graph) remains fixed.
 
-Once a solution is generated the algorithm checks if there is an improvement over the current best solution $x^\ast$ (the sequence of $f(x^\ast)$ is constrained to be decreasing); then the Metropolis acceptance criterion is applied using the energy gap $\Delta E_t=f(x^t)-f(x^k)$, this rule checks if there is an improvement over the current transition $x^k$, the criterion is as follows
+Once a solution is generated the algorithm checks if there is an improvement over the current best solution $x^\ast$ (the sequence of $f(x^\ast)$ is constrained to be decreasing); then the Metropolis acceptance criterion (Monte Carlo importance sampling) is applied using the energy gap $\Delta E_t=f(x^t)-f(x^k)$, this rule checks if there is an improvement over the current transition $x^k$, the criterion is as follows
 \[
 \mathbb{P}(\text{accept $x^t$})=
 \begin{cases}
@@ -127,14 +127,14 @@ $x^\ast$ s.t. $f(x^\ast)=\infty$\;
 	$k\gets0$\;
 	\While{stopping criterion not satisfied}{%
 		$x^k\gets x^\ast$\;
-		\For{$i=1,2,\dots,L_k$}{%
-			Generate a feasible solution $x^t$, see figure~\ref{fig:perturbations}\;
+		\For{$t=1,2,\dots,L_k$}{%
+			Generate a feasible solution $x^t$ using \texttt{reverse} from figure~\ref{fig:perturbations}\;
 			\If{$f(x^t)<f(x^\ast)$}{%
 				$x^\ast\gets x^t$\tcp*[l]{down-hill, new best solution}
 			}
 			
 			\uIf{$f(x^t)<f(x^k)$}{%
-				$x^k\gets x^t$\tcp*[l]{down-hill note that $f(x^k)\geq f(x^\ast)$}
+				$x^k\gets x^t$\tcp*[l]{down-hill, note that $f(x^k)\geq f(x^\ast)$}
 			}
 			\Else{%
 				Generate a random number $r\sim U(0,1)$\;
