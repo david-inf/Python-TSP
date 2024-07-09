@@ -294,3 +294,10 @@ for i in range(2):
 energy_landscape_ann(energies_rand_ann)
 plt.savefig(plots_dir + "rand-annealing-energy.pdf")
 
+
+
+# %% Playground
+
+res_gen = solve_tsp(tsp_fun, D1_circle, "genetic-alg",
+    options=dict(maxiter=100))
+

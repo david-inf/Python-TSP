@@ -8,9 +8,11 @@ from tsp_solvers.exact.brute_force import solve_brute_force
 from tsp_solvers.heuristics.local_search import solve_local_search
 from tsp_solvers.heuristics.multi_start import solve_multi_start
 from tsp_solvers.heuristics.simulated_annealing import solve_simulated_annealing
+from tsp_solvers.heuristics.genetic_algorithm import solve_genetic_algorithm
 
 
-_solvers_list = ["brute-force", "local-search", "multi-start", "simulated-annealing"]
+_solvers_list = ["brute-force", "local-search", "multi-start", "simulated-annealing",
+                 "genetic-alg"]
 
 _solvers_dict = {"exact": ["brute-force"],
                  "local-search": ["swap", "reverse"],
@@ -70,6 +72,9 @@ def solve_tsp(fun, cost, solver, x0=None, options=None):
 
     elif solver == "simulated-annealing":
         res = solve_simulated_annealing(fun, cost, x0, **options)
+
+    elif solver == "genetic-alg":
+        res = solve_genetic_algorithm(fun, cost, **options)
 
     if res is None:
 
