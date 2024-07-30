@@ -14,7 +14,7 @@ from tsp_solvers.optimize import solve_tsp
 
 plots_dir = "./plots/"
 N_grid = [30, 50]
-N1 = 10
+N1 = 30
 N2 = 50
 
 # %% TSP circular
@@ -33,7 +33,7 @@ _plot_nodes(C1_circle, text=True)
 
 # %%% greedy nearest neighbor
 
-res_greedy = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor")
+res_greedy = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor", options=dict(method="exact"))
 
 res_local = solve_tsp(tsp_fun, D1_circle, "local-search", options=dict(maxiter=200))
 
@@ -207,6 +207,7 @@ D2_rand, C2_rand = generate_cities(N2)
 # %%%
 
 _plot_nodes(C1_rand, text=True)
+# plt.savefig(plots_dir + "rand-nodes.pdf")
 
 # %%% greed nearest neighbor
 
@@ -293,6 +294,7 @@ annealing_diagnostic(C2_rand, res_rand_ann2)
 plt.savefig(plots_dir + "rand-annealing-quad2.pdf")
 
 # %%%%
+
 annealing_animation(res_rand_ann2, C2_rand, "rand-annealing-quad.mp4")
 
 # %%% Energy landscape

@@ -115,7 +115,7 @@ def generate_cities(ncity, l=10, seed=42):
     return D, C
 
 
-def circle_cities(ncity, r=5, seed=42):
+def circle_cities(ncity, r=5, shuffle=False, seed=42):
 
     # delta between each city in polar coordinates
     theta = 2 * np.pi / ncity
@@ -134,10 +134,11 @@ def circle_cities(ncity, r=5, seed=42):
         Ccart[i,:] = r * np.array([np.cos(Cpol[i,0]), np.sin(Cpol[i,0])])
 
     ## shuffle cities
-    rng = np.random.default_rng(seed)
-    city_idx = np.arange(1, ncity)
-    rng.shuffle(city_idx)
-    Ccart[1:, :] = Ccart[city_idx, :]
+    if shuffle:
+        rng = np.random.default_rng(seed)
+        city_idx = np.arange(1, ncity)
+        rng.shuffle(city_idx)
+        Ccart[1:, :] = Ccart[city_idx, :]
 
     D = distance_matrix(Ccart)
 

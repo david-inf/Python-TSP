@@ -49,19 +49,12 @@ def solve_genetic_algorithm(fun, cost, maxiter, individuals=20, nson=5,
 def _eval_fitness(fun, cost, x_list):
     """ Compute each fitness for the given population """
 
-    f_list = [fun(x, cost) for x in x_list]
-    f_max = max(f_list)  # worst objective function value
+    # cost for each individual
+    f_list = np.array([fun(x, cost) for x in x_list])
 
-    fitness = []
+    fit = (np.max(f_list)*1.1 - f_list)
 
-    # compute fitness for each solution
-    for f in f_list:
-
-        # compute fit
-        fit = f_max - f  # >= 0.
-        fitness.append(fit)
-
-    return fitness / sum(fitness)
+    return fit / np.sum(fit)
 
 
 def _init_population(ncity, size, generator):

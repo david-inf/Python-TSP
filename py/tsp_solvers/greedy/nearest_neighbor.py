@@ -2,7 +2,8 @@
 """
 Nearest Neighbor greedy algorithm module
 
-For the circular layout obviously gets the best solution, which is a circular path
+For the circular layout when `method="exact"` obviously gets the best solution,
+which is a circular path.
 
 """
 
@@ -37,6 +38,9 @@ def solve_nn(fun, cost, method="exact", random_state=42):
 
     """
 
+    ## random generator
+    _rng = np.random.default_rng(random_state)
+
     xk = [0]  # solution that will be build up
     maxiter = cost.shape[0] - 1
 
@@ -50,7 +54,7 @@ def solve_nn(fun, cost, method="exact", random_state=42):
 
         ## add new node in solution
         current_x = xk.copy()
-        xk = _add_node(current_x, cost, method)
+        xk = _add_node(current_x, cost, method, _rng)
 
         ## update sequences
         k += 1
@@ -64,7 +68,7 @@ def solve_nn(fun, cost, method="exact", random_state=42):
     return res
 
 
-def _add_node(x_current, cost, method):
+def _add_node(x_current, cost, method, generator):
     """
     Procedure for adding a new node in the solution
 
@@ -74,6 +78,9 @@ def _add_node(x_current, cost, method):
         Current non-complete solution.
     cost : array_like
         Cost matrix.
+    method : string
+        Method for selecting the next node.
+    generator : numpy.random.Generator
 
     Returns
     -------
@@ -85,12 +92,8 @@ def _add_node(x_current, cost, method):
     start_node = x_current[-1]  # last node added in the solution
 
     ## select the nodes to draw from
-    nodes_left = []
-
-    for i in np.arange(cost.shape[0]):
-
-        if i not in x_current:
-            nodes_left.append(i)
+    nodes_left = list(set(list(range(cost.shape[0]))).difference(set(x_current)))
+    nodes_left_cost = [cost[start_node, i] for i in nodes_left]
 
     ## choose the next node
     next_node = None
@@ -100,14 +103,17 @@ def _add_node(x_current, cost, method):
         # get the nearest node
         next_node = nodes_left[np.argmin(cost[start_node, nodes_left])]
 
-    # elif method == "random":
+    # RFE: one can try using different seeds maybe
+    elif method == "random":
 
         # get a random node
-        
+        next_node = generator.choice(nodes_left)
 
-    # elif method == "weighted":
+    elif method == "weighted":
 
         # get a random node based on cost
-        
+        _w = np.max(nodes_left_cost)*1.1 - nodes_left_cost
+        weights = _w / np.sum(_w)
+        next_node = generator.choice(nodes_left, p=weights)
 
     return x_current + [next_node]

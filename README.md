@@ -7,6 +7,7 @@ Statistical physics and complex systems final project
 The problem: Travelling Salesman Problem, minimum Hamiltonian cycle problem. Find the shortest route that connects all cities.
 
 ## Recipes
+Permutation encoding `[0,3,4,1,2,0]`
 
 Perturbation methods:
 - [x] `swap`: draw two random indices $\{i,j\}$, swap the corresponding cities in the sequence (canonical ensemble)
@@ -16,12 +17,19 @@ Perturbation methods:
 
 Algorithms:
 - **Exact**:
-    - Brute-force: check all possible permutations
+    - Brute-force: check all possible permutations and select the best one
+- **Greedy**
+    - Nearest Neighbor with variants:
+        - `exact`: the next node is the nearest one (lower cost)
+        - `random`: the next node is randomly chosen
+        - `weighted`: the next node is randomly chosen cost-weighted
 - **Heuristics**:
-    - 2-exchange: `swap` and `reverse` neighborhood operators
+    - 2-exchange variants:
+        - `swap`: draw two nodes and swap their position
+        - `reverse`: draw two nodes and reverse the sequence inclusive
 - **Meta-heuristics**:
-    - Multi-start
-    - Simulated annealing
+    - Multi-start: a pool of random initial solutions for 2-exchange and SA
+    - Simulated Annealing (SA)
         - `reverse` perturbation method
         - Geometric cooling schedule $T_{k+1}=\alpha T_k$
 
