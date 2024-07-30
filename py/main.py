@@ -14,7 +14,7 @@ from tsp_solvers.optimize import solve_tsp
 
 plots_dir = "./plots/"
 N_grid = [30, 50]
-N1 = 30
+N1 = 10
 N2 = 50
 
 # %% TSP circular
@@ -28,8 +28,14 @@ D2_circle, C2_circle = circle_cities(N2)
 
 # %%% plot graph
 
-# _plot_nodes(C1)
+_plot_nodes(C1_circle, text=True)
 # plt.savefig(plots_dir + "circle-nodes.pdf")
+
+# %%% greedy nearest neighbor
+
+res_greedy = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor")
+
+res_local = solve_tsp(tsp_fun, D1_circle, "local-search", options=dict(maxiter=200))
 
 # %%% swap local search
 
@@ -197,6 +203,16 @@ C_rand = list(C_rand)
 
 D1_rand, C1_rand = generate_cities(N1)
 D2_rand, C2_rand = generate_cities(N2)
+
+# %%%
+
+_plot_nodes(C1_rand, text=True)
+
+# %%% greed nearest neighbor
+
+res_greedy = solve_tsp(tsp_fun, D1_rand, "nearest-neighbor")
+
+res_local = solve_tsp(tsp_fun, D1_rand, "local-search", options=dict(maxiter=200))
 
 # %%% swap local search
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Simulated Annealing (SA) module
+Simulated Annealing (SA) meta-heuristics algorithm module
 
 """
 

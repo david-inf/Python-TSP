@@ -190,7 +190,7 @@ def energy_landscape_ann(solvers_list, v_line=None, ax=None):
 
 # %% Optimization process animation
 
-def _plot_nodes(coords, ax=None):
+def _plot_nodes(coords, ax=None, text=False):
     # coords: coordinates matrix
 
     # coordinates according to given sequence
@@ -205,8 +205,9 @@ def _plot_nodes(coords, ax=None):
 
     ax.scatter(x_coord, y_coord, marker="o", color=colors, s=15)
 
-    # for i in range(coords.shape[0]):
-    #     ax.text(coords[i,0], coords[i,1], f"{i}")
+    if text:
+        for i in range(coords.shape[0]):
+            ax.text(coords[i,0], coords[i,1], f"{i}")
 
     ax.grid(True, which="both", axis="both")
     ax.set_xlabel(r"$x$")
