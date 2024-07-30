@@ -2,6 +2,9 @@
 """
 Multi start metaheuristics module
 
+This is a Genetic Algorithm with just mutation. Keep the same population
+and perform mutation on each individual.
+
 """
 
 import time

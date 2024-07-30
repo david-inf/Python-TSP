@@ -298,6 +298,9 @@ plt.savefig(plots_dir + "rand-annealing-energy.pdf")
 
 # %% Playground
 
+x0 = random_seq(30)
+# D1_circle[np.ix_(x0[[1,4,8]], x0[[1,4,8]])]
+
 res_gen = solve_tsp(tsp_fun, D1_circle, "genetic-alg",
-    options=dict(maxiter=100))
+    options=dict(maxiter=100, selection="weighted"))
 
