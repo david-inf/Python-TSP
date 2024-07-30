@@ -32,13 +32,13 @@ Algorithms:
     - Simulated Annealing (SA)
         - `reverse` perturbation method
         - Geometric cooling schedule $T_{k+1}=\alpha T_k$
+    - Genetic Algorithm (GA)
 
 ## Examples
 
-Local search with `reverse` perturbation
-
-https://github.com/david-inf/Python-TSP/assets/76067448/868a057a-9af2-41a6-b0de-d6feefddb97a
-
-Simulated Annealing
-
-https://github.com/david-inf/Python-TSP/assets/76067448/56218497-0209-496a-bf69-de4ed1858b12
+| **Algorithm** | **Circular layout** | **Random layout** |
+| -- | -- | -- |
+| Nearest Neighbor with `weighted` | ![circle-greedy2](https://github.com/user-attachments/assets/2b2410af-60ea-4b29-9604-52ba4584e94e) | ![rand-greedy2](https://github.com/user-attachments/assets/3213cb78-0bdf-4104-93d4-e7768e29f0d1) |
+| Best multi-start local search with `swap` | ![circle-swap](https://github.com/user-attachments/assets/a257d403-8fb9-4505-a2f5-4e478fefc798) | ![rand-swap](https://github.com/user-attachments/assets/f5a2778c-a5bd-431b-8f55-a6dd2304f668) |
+| Best multi-start local search with `reverse` | ![circle-reverse](https://github.com/user-attachments/assets/d55ad505-018b-473d-b503-d9053ed0fb03) | ![rand-reverse](https://github.com/user-attachments/assets/92cce929-bb47-4273-9e14-1e083f12ab86) |
+| Best multi-start Simulated Annealing | ![circle-annealing-quad](https://github.com/user-attachments/assets/21eaaa01-8f07-4ee4-a5c0-cedc51422c3a) | ![rand-annealing-quad](https://github.com/user-attachments/assets/02a173f5-f90f-4520-a806-2f1681d89743) |
