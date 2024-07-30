@@ -36,14 +36,9 @@ Algorithms:
 
 ## Examples
 
-Local search with `reverse` perturbation
-
-https://github.com/user-attachments/assets/7becbec8-25e1-456b-a1bf-647b750770f2
-
-https://github.com/user-attachments/assets/f87c32c4-de39-4a50-8d16-7f8578f9bd6f
-
-Simulated Annealing
-
-https://github.com/user-attachments/assets/94effa22-3148-4c44-a937-31941d687b15
-
-https://github.com/user-attachments/assets/9fc79aff-aa3a-4e3f-9e7d-08c52f572358
+| Circular layout | Random layout |
+| -- | -- |
+| Nearest Neighbor with `weighted` ![circle-greedy2](https://github.com/user-attachments/assets/2b2410af-60ea-4b29-9604-52ba4584e94e) | Nearest Neighbor with `weighted` ![rand-greedy2](https://github.com/user-attachments/assets/3213cb78-0bdf-4104-93d4-e7768e29f0d1) |
+| Best multi-start local search with `swap` ![circle-swap](https://github.com/user-attachments/assets/a257d403-8fb9-4505-a2f5-4e478fefc798) | Best multi-start local search with `swap` ![rand-swap](https://github.com/user-attachments/assets/f5a2778c-a5bd-431b-8f55-a6dd2304f668) |
+| Best multi-start local search with `reverse` ![circle-reverse](https://github.com/user-attachments/assets/d55ad505-018b-473d-b503-d9053ed0fb03) | Best multi-start local search with `reverse` ![rand-reverse](https://github.com/user-attachments/assets/92cce929-bb47-4273-9e14-1e083f12ab86) |
+| Best multi-start Simulated Annealing ![circle-annealing-quad](https://github.com/user-attachments/assets/21eaaa01-8f07-4ee4-a5c0-cedc51422c3a) | Best multi-start Simulated Annealing ![rand-annealing-quad](https://github.com/user-attachments/assets/02a173f5-f90f-4520-a806-2f1681d89743) |
