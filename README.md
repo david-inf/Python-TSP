@@ -32,13 +32,18 @@ Algorithms:
     - Simulated Annealing (SA)
         - `reverse` perturbation method
         - Geometric cooling schedule $T_{k+1}=\alpha T_k$
+    - Genetic Algorithm (GA)
 
 ## Examples
 
 Local search with `reverse` perturbation
 
-https://github.com/david-inf/Python-TSP/assets/76067448/868a057a-9af2-41a6-b0de-d6feefddb97a
+https://github.com/user-attachments/assets/7becbec8-25e1-456b-a1bf-647b750770f2
+
+https://github.com/user-attachments/assets/f87c32c4-de39-4a50-8d16-7f8578f9bd6f
 
 Simulated Annealing
 
-https://github.com/david-inf/Python-TSP/assets/76067448/56218497-0209-496a-bf69-de4ed1858b12
+https://github.com/user-attachments/assets/94effa22-3148-4c44-a937-31941d687b15
+
+https://github.com/user-attachments/assets/9fc79aff-aa3a-4e3f-9e7d-08c52f572358
