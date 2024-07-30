@@ -62,7 +62,8 @@ def solve_nn(fun, cost, method="exact", random_state=42):
 
     xk += [0]
     x_final = np.array(xk)
-    res = OptimizeResult(fun=fun(x_final, cost), x=x_final, solver="Nearest Neighbor",
+    res = OptimizeResult(fun=fun(x_final, cost), x=x_final,
+                         solver="Nearest Neighbor " + method,
                          runtime=time_seq[-1])
 
     return res

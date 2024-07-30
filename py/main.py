@@ -33,9 +33,14 @@ _plot_nodes(C1_circle, text=True)
 
 # %%% greedy nearest neighbor
 
-res_greedy = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor", options=dict(method="exact"))
+res_circle_greedy1 = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor", options=dict(method="weighted"))
+plot_points(C1_circle, res_circle_greedy1)
+plt.savefig(plots_dir + "circle-greedy1.pdf")
 
-res_local = solve_tsp(tsp_fun, D1_circle, "local-search", options=dict(maxiter=200))
+res_circle_greedy2 = solve_tsp(tsp_fun, D2_circle, "nearest-neighbor", options=dict(method="weighted"))
+plot_points(C2_circle, res_circle_greedy2)
+plt.savefig(plots_dir + "circle-greedy2.pdf")
+plt.savefig(plots_dir + "circle-greedy2.png")
 
 # %%% swap local search
 
@@ -211,9 +216,14 @@ _plot_nodes(C1_rand, text=True)
 
 # %%% greed nearest neighbor
 
-res_greedy = solve_tsp(tsp_fun, D1_rand, "nearest-neighbor")
+res_rand_greedy1 = solve_tsp(tsp_fun, D1_rand, "nearest-neighbor", options=dict(method="weighted"))
+plot_points(C1_rand, res_rand_greedy1)
+plt.savefig(plots_dir + "rand-greedy1.pdf")
 
-res_local = solve_tsp(tsp_fun, D1_rand, "local-search", options=dict(maxiter=200))
+res_rand_greedy2 = solve_tsp(tsp_fun, D2_rand, "nearest-neighbor", options=dict(method="weighted"))
+plot_points(C2_rand, res_rand_greedy2)
+plt.savefig(plots_dir + "rand-greedy2.pdf")
+plt.savefig(plots_dir + "rand-greedy2.png")
 
 # %%% swap local search
 
