@@ -14,7 +14,7 @@ from scipy.optimize import OptimizeResult
 
 def solve_nn(fun, cost, method="exact", random_state=42):
     """
-    Greedy algorithm.
+    Greedy algorithm, Nearest Neighbor
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ def solve_nn(fun, cost, method="exact", random_state=42):
     return res
 
 
-def _add_node(x_current, cost, method, generator):
+def _add_node(x_current, cost, method, generator, nodes_left=None):
     """
     Procedure for adding a new node in the solution
 
@@ -82,18 +82,22 @@ def _add_node(x_current, cost, method, generator):
     method : string
         Method for selecting the next node.
     generator : numpy.random.Generator
+    nodes_left : list, optional
+        Nodes list to choose from. The default is None.
 
     Returns
     -------
     x_new : list
-        Solution with a new node added
+        Solution with a new node added.
 
     """
 
     start_node = x_current[-1]  # last node added in the solution
 
     ## select the nodes to draw from
-    nodes_left = list(set(list(range(cost.shape[0]))).difference(set(x_current)))
+    if nodes_left is None:
+        nodes_left = list(set(list(range(cost.shape[0]))).difference(set(x_current)))
+
     nodes_left_cost = [cost[start_node, i] for i in nodes_left]
 
     ## choose the next node

@@ -33,11 +33,13 @@ _plot_nodes(C1_circle, text=True)
 
 # %%% greedy nearest neighbor
 
-res_circle_greedy1 = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor", options=dict(method="weighted"))
+res_circle_greedy1 = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor",
+                               options=dict(method="exact"))
 plot_points(C1_circle, res_circle_greedy1)
 plt.savefig(plots_dir + "circle-greedy1.pdf")
 
-res_circle_greedy2 = solve_tsp(tsp_fun, D2_circle, "nearest-neighbor", options=dict(method="weighted"))
+res_circle_greedy2 = solve_tsp(tsp_fun, D2_circle, "nearest-neighbor",
+                               options=dict(method="weighted"))
 plot_points(C2_circle, res_circle_greedy2)
 plt.savefig(plots_dir + "circle-greedy2.pdf")
 plt.savefig(plots_dir + "circle-greedy2.png")
@@ -326,9 +328,11 @@ plt.savefig(plots_dir + "rand-annealing-energy.pdf")
 
 # %% Playground
 
-x0 = random_seq(30)
+# x0 = random_seq(30)
 # D1_circle[np.ix_(x0[[1,4,8]], x0[[1,4,8]])]
 
-res_gen = solve_tsp(tsp_fun, D1_circle, "genetic-alg",
-    options=dict(maxiter=100, selection="weighted"))
+res_gen = solve_tsp(tsp_fun, D2_rand, "genetic-alg",
+    options=dict(maxiter=30, method="exact", individuals=5, nson=2))
+
+diagnostic(C2_rand, res_gen)
 
