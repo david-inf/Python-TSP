@@ -8,7 +8,8 @@ from tsp_solvers.tsp import (
     tsp_fun, circle_cities, random_seq, create_city, generate_cities, adjacency)
 from tsp_solvers.diagnostic_utils import (
     diagnostic, plot_points, plot_fun, annealing_diagnostic, local_search_animation,
-    annealing_animation, _plot_nodes, energy_landscape, energy_landscape_ann)
+    annealing_animation, _plot_nodes, energy_landscape, energy_landscape_ann,
+    genetic_diagnostic, genetic_animation)
 
 from tsp_solvers.optimize import solve_tsp
 
@@ -34,15 +35,20 @@ _plot_nodes(C1_circle, text=True)
 # %%% greedy nearest neighbor
 
 res_circle_greedy1 = solve_tsp(tsp_fun, D1_circle, "nearest-neighbor",
-                               options=dict(method="exact"))
-plot_points(C1_circle, res_circle_greedy1)
-plt.savefig(plots_dir + "circle-greedy1.pdf")
+                               options=dict(method="weighted"))
 
 res_circle_greedy2 = solve_tsp(tsp_fun, D2_circle, "nearest-neighbor",
                                options=dict(method="weighted"))
-plot_points(C2_circle, res_circle_greedy2)
-plt.savefig(plots_dir + "circle-greedy2.pdf")
-plt.savefig(plots_dir + "circle-greedy2.png")
+
+# %%%%
+
+# plot_points(C1_circle, res_circle_greedy1)
+# plt.savefig(plots_dir + "circle-greedy1.pdf")
+
+# plot_points(C2_circle, res_circle_greedy2)
+# plt.savefig(plots_dir + "circle-greedy2.pdf")
+# plt.savefig(plots_dir + "circle-greedy2.png")
+
 
 # %%% swap local search
 
@@ -125,6 +131,11 @@ plt.savefig(plots_dir + "circle-annealing-quad2.pdf")
 # %%%%
 
 annealing_animation(res_circle_ann2, C2_circle, "circle-annealing-quad.mp4")
+
+
+# %%% genetic algorithm
+
+
 
 # %%% energy landscape
 
@@ -309,6 +320,11 @@ plt.savefig(plots_dir + "rand-annealing-quad2.pdf")
 
 annealing_animation(res_rand_ann2, C2_rand, "rand-annealing-quad.mp4")
 
+
+# %%% genetic algorithm
+
+
+
 # %%% Energy landscape
 
 energies_rand_ls = solve_multiple_ls(D_rand[:2], 1000, [1000,5000])
@@ -331,9 +347,10 @@ plt.savefig(plots_dir + "rand-annealing-energy.pdf")
 # x0 = random_seq(30)
 # D1_circle[np.ix_(x0[[1,4,8]], x0[[1,4,8]])]
 
-res_gen = solve_tsp(tsp_fun, D1_circle, "genetic-alg",
-    options=dict(maxiter=300, individuals=200, nson=200, method="weighted",
-                 mutation_iters=100))
+res_gen = solve_tsp(tsp_fun, D2_circle, "genetic-alg",
+    options=dict(maxiter=1000, individuals=250, n_couples=10, n_desc=20,
+                 method="weighted", mutation_iters=25))
 
-diagnostic(C1_circle, res_gen)
+genetic_diagnostic(C2_circle, res_gen)
 
+# genetic_animation(res_gen, C2_circle, "circle-genetic.mp4")

@@ -133,7 +133,26 @@ def annealing_diagnostic(coords, opt_res):
     ## plot temperature against iterations
     _plot_temp(opt_res, ax=axs[1, 1])
 
-    return None
+
+# %% genetic algorithm diagnostic
+
+def genetic_diagnostic(coords, opt_res):
+    # plot cities map a objective function performance
+    # coords: coordinates matrix
+    # opt_res: OptimizeResult
+
+    fig, axs = plt.subplots(1, 2, layout="constrained")
+    # plt.title(opt_res.solver)
+
+    ## plot graph
+    plot_points(coords, opt_res, axs[0])
+
+    ## plot function performance
+    plot_fun(opt_res, ax=axs[1])
+
+    opt_res2 = copy.deepcopy(opt_res)
+    opt_res2.fun_seq = opt_res2.funk_seq
+    plot_fun(opt_res2, ax=axs[1])
 
 
 # %% Energy landscape
@@ -341,6 +360,59 @@ def annealing_animation(opt_res, coords, filename, delay=100):
         line_temp.set_data(seq, temp_current_seq)
 
         return line_path, annotation, line_fun, line_fun_acc, line_chi, line_temp
+
+
+    ani = animation.FuncAnimation(
+        fig, update, frames=x_history.shape[0], interval=delay, repeat=False, blit=True)
+
+    ani.save(filename, writer="ffmpeg", fps=30)
+
+
+def genetic_animation(opt_res, coords, filename, delay=100):
+
+    x_history = opt_res.x_seq  # (N+1) x (maxiter+1)
+    f_history = opt_res.fun_seq  # (maxiter+1)
+    fk_history = opt_res.funk_seq  # (maxiter+1)
+
+    fig, axs = plt.subplots(1, 2, layout="constrained")
+
+    ## draw nodes
+    nodes = _plot_nodes(coords, axs[0])
+    line_path, = axs[0].plot([], [], lw=2)  # null path
+    annotation = axs[0].text(0.025, 0.98, '', transform=axs[0].transAxes, va='top')
+    axs[0].set_title(f"Current best path, N: {opt_res.x.size-1}")
+
+    ## draw best and currente generation objective function
+    axs[1].set_xlim(0.9, f_history.size)
+    axs[1].set_xscale("log")
+    axs[1].set_ylim(np.min(f_history)*0.95, np.max(f_history)*1.05)
+    axs[1].grid(True, which="both", axis="both")
+    axs[1].set_xlabel("iterations")
+    axs[1].set_ylabel(r"$f(x)$")
+    line_fun, = axs[1].plot([], [], lw=2)  # null objective function
+    line_funk, = axs[1].plot([], [], lw=2)  # null gen objective function
+    axs[1].set_title(opt_res.solver)
+
+
+    def update(frame):
+
+        path = x_history[frame]
+        f_val = f_history[frame]
+        f_current_seq = f_history[:frame+1]
+        fk_current_seq = fk_history[:frame+1]
+
+        ## path
+        x = coords[path, 0]
+        y = coords[path, 1]
+        line_path.set_data(x, y)
+        annotation.set_text(f"f: {f_val:.2f}")
+
+        ## objective function
+        seq = np.insert(np.arange(1, frame+1), 0, 0)
+        line_fun.set_data(seq, f_current_seq)
+        line_funk.set_data(seq, fk_current_seq)
+
+        return line_path, annotation, line_fun, line_funk
 
 
     ani = animation.FuncAnimation(

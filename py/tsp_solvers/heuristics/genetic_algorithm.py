@@ -16,8 +16,8 @@ from tsp_solvers.heuristics.local_search import solve_local_search
 from tsp_solvers.greedy.nearest_neighbor import _add_node
 
 # RFE: other metrics could be the mean f(x) over the current population
-def solve_genetic_algorithm(fun, cost, maxiter, individuals=20, nson=5,
-                            method="exact", mutation_iters=10,
+def solve_genetic_algorithm(fun, cost, maxiter, individuals, n_couples, n_desc,
+                            method="weighted", mutation_iters=50,
                             random_state=42):
 
     ## random generator
@@ -30,8 +30,10 @@ def solve_genetic_algorithm(fun, cost, maxiter, individuals=20, nson=5,
     best_f = fun(best_x, cost)
 
     ## allocate and initialize sequences for metrics
-    f_seq = np.empty(maxiter+1)  # objective function sequence
+    f_seq = np.empty(maxiter+1)  # best objective function sequence
     f_seq[0] = best_f
+    fk_seq = np.empty(maxiter+1)  # generation best objective function sequence
+    fk_seq[0] = best_f
     time_seq = np.zeros_like(f_seq)  # runtime for each iteration
     time_seq[0] = 0.
     x_seq = np.empty((maxiter+1, cost.shape[0]+1), dtype=np.int32)  # best solution sequence
@@ -43,33 +45,77 @@ def solve_genetic_algorithm(fun, cost, maxiter, individuals=20, nson=5,
     while k < maxiter:
 
         ## selection: select parent solutions
-        # TODO: generate solution from more than one couple of parents
-        # draw a certain number of parents, then create offspring
-        parents = _select_x(fun, cost, population, method, 2, _rng)
+        # parents = _select_x(fun, cost, population, method, 2, _rng)
 
         ## cross-over: generate new individuals from parents
-        offspring = _crossover(parents, cost, method, nson, _rng)
+        # offspring = _crossover(parents, cost, method, n_desc, _rng)
 
         ## mutation: mutate generated individuals
-        offspring = _mutation(fun, cost, offspring, mutation_iters, _rng)
+        # offspring = _mutation(fun, cost, offspring, mutation_iters, _rng)
+
+        # offspring = []
+        # for _ in range(n_couples):
+
+        #     ## slection: draw 2 parents from population
+        #     # list of array_like of length 2
+        #     parents = _select_x(fun, cost, population, method, 2, _rng)
+        #     ## cross-over: generate n_desc individuals
+        #     # list of array_like of length n_desc
+        #     descendants = _crossover(parents, cost, method, n_desc, _rng)
+        #     ## mutation: let generated individuals mutate
+        #     # list of array_like of length n_desc
+        #     descendants = _mutation(fun, cost, descendants, mutation_iters, _rng)
+        #     # add individuals to current offspring
+        #     offspring += descendants
+
+        def _offspring_fun():
+
+            ## slection: draw 2 parents from population
+            # list of array_like of length 2
+            parents = _select_x(fun, cost, population, method, 2, _rng)
+            ## cross-over: generate n_desc individuals
+            # list of array_like of length n_desc
+            descendants = _crossover(parents, cost, method, n_desc, _rng)
+            ## mutation: let generated individuals mutate
+            # list of array_like of length n_desc
+            descendants = _mutation(fun, cost, descendants, mutation_iters, _rng)
+
+            return descendants
+
+        with Parallel(n_jobs=6, backend="loky") as parallel:
+
+            # list of list of array_like
+            offspring = parallel(
+                delayed(_offspring_fun)()
+                for _ in range(n_couples))
+
+        # make list of array_like
+        offspring = [element for sublist in offspring for element in sublist]
 
         ## select individuals based on fitness to keep population constant
         population = _survival(fun, cost, population, offspring, method, _rng)
 
-        ## update best result
-        best_x = _select_x(fun, cost, population, "exact", 1)[0]
-        best_f = fun(best_x, cost)
+        ## update best result for this iteration
+        xk = _select_x(fun, cost, population, "exact", 1)[0]
+        fk = fun(xk, cost)
+
+        if fk < best_f:
+            # update best values, best_f can only decrease
+            best_x = xk.copy()
+            best_f = fk
 
         ## update (next) iteration number
         k += 1
 
         ## update sequences with values from current iteration
         f_seq[k] = best_f
+        fk_seq[k] = fk
         x_seq[k] = best_x.copy()
         time_seq[k] = time.time() - _start
 
     res = OptimizeResult(fun=best_f, x=best_x, nit=k, solver="Genetic Algorithm",
-                         runtime=time_seq[k], x_seq=x_seq, fun_seq=f_seq)
+                         runtime=time_seq[k], x_seq=x_seq, fun_seq=f_seq,
+                         funk_seq=fk_seq)
 
     return res
 
@@ -209,28 +255,30 @@ def _crossover(parents, cost, method="weighted", n=1, generator=None, n_jobs=2):
     """
     Create n solutions starting with x1 and x2 common edges.
 
-    x1, x2 : array_like
-        Parents from which the solutions are generated.
-    method : string
+    Parameters
+    ----------
+    parents : list of array_like
+        Parents from which to generate new individuals.
+        Expected len(parents)=2
+    cost : array_like
+        Cost matrix.
+    method : string, optional
         `exact`: choose next node based on distance
         `random`: choose next node randomly
         `weighted`: choose next node with weighted uniform distribution
     n : int, optional
         Population size. The default is 1.
+    generator : numpy.random.Generator, optional
+    n_jobs : int, optional
+
+    Returns
+    -------
+    offspring : list of array_like
+        Generated individuals.
 
     """
 
     x1, x2 = parents
-
-    # offspring = []  # list of array_like
-
-    # # TODO: can be parallelized
-    # for _ in range(n):
-
-    #     # create a descendant
-    #     x_desc = _build_solution(x1, x2, cost, method, generator)
-    #     # add to the offspring list
-    #     offspring.append(x_desc)
 
     def _crossover_fun():
 
@@ -247,7 +295,7 @@ def _crossover(parents, cost, method="weighted", n=1, generator=None, n_jobs=2):
     return offspring
 
 
-def _mutation(fun, cost, offspring, iters, generator, n_jobs=4):
+def _mutation(fun, cost, offspring, iters, generator, n_jobs=2):
     """
     Mutate randomly the offspring using local search.
 

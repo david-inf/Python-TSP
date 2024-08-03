@@ -34,12 +34,15 @@ Algorithms:
         - Automatic $T_0$ tuning based on acceptance rate $\chi$
         - Geometric cooling schedule $T_{k+1}=\alpha T_k$
     - Genetic Algorithm (GA)
+        - Method for every decision can be `exact`, `random` or `weighted`
+        - Mutation throught `reverse` perturbation
 
 ## Examples
 
 | **Algorithm** | **Circular layout** | **Random layout** |
 | -- | -- | -- |
-| Nearest Neighbor with `weighted` | ![circle-greedy2](https://github.com/user-attachments/assets/2b2410af-60ea-4b29-9604-52ba4584e94e) | ![rand-greedy2](https://github.com/user-attachments/assets/3213cb78-0bdf-4104-93d4-e7768e29f0d1) |
-| Best multi-start local search with `swap` | ![circle-swap](https://github.com/user-attachments/assets/a257d403-8fb9-4505-a2f5-4e478fefc798) | ![rand-swap](https://github.com/user-attachments/assets/f5a2778c-a5bd-431b-8f55-a6dd2304f668) |
-| Best multi-start local search with `reverse` | ![circle-reverse](https://github.com/user-attachments/assets/d55ad505-018b-473d-b503-d9053ed0fb03) | ![rand-reverse](https://github.com/user-attachments/assets/92cce929-bb47-4273-9e14-1e083f12ab86) |
-| Best multi-start Simulated Annealing | ![circle-annealing-quad](https://github.com/user-attachments/assets/21eaaa01-8f07-4ee4-a5c0-cedc51422c3a) | ![rand-annealing-quad](https://github.com/user-attachments/assets/02a173f5-f90f-4520-a806-2f1681d89743) |
+| Nearest Neighbor with `weighted` | Runtime: 0.0 $s$ ![circle-greedy2](https://github.com/user-attachments/assets/2b2410af-60ea-4b29-9604-52ba4584e94e) | Runtime: 0.0 $s$ ![rand-greedy2](https://github.com/user-attachments/assets/3213cb78-0bdf-4104-93d4-e7768e29f0d1) |
+| Best multi-start local search with `swap`. Params: `nsim`=1000, `maxiter`=1000. | Runtime: 0.0715 $s$ ![circle-swap](https://github.com/user-attachments/assets/a257d403-8fb9-4505-a2f5-4e478fefc798) | Runtime: 0.0709 $s$ ![rand-swap](https://github.com/user-attachments/assets/f5a2778c-a5bd-431b-8f55-a6dd2304f668) |
+| Best multi-start local search with `reverse`. Params: `nsim`=1000, `maxiter`=1000. | Runtime: 0.0827 $s$ ![circle-reverse](https://github.com/user-attachments/assets/d55ad505-018b-473d-b503-d9053ed0fb03) | Runtime: 0.0823 $s$ ![rand-reverse](https://github.com/user-attachments/assets/92cce929-bb47-4273-9e14-1e083f12ab86) |
+| Best multi-start Simulated Annealing. Params: `nsim`=10, `maxiter_outer`=1000, `maxiter_inner`=500, $\alpha$=0.995  | Runtime: 43.4867 $s$ ![circle-annealing-quad](https://github.com/user-attachments/assets/21eaaa01-8f07-4ee4-a5c0-cedc51422c3a) | Runtime: 59.7230 $s$ ![rand-annealing-quad](https://github.com/user-attachments/assets/02a173f5-f90f-4520-a806-2f1681d89743) |
+| Best Genetic Algorithm. Params:  | Runtime: | Runtime: |
