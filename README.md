@@ -31,6 +31,7 @@ Algorithms:
     - Multi-start: a pool of random initial solutions for 2-exchange and SA
     - Simulated Annealing (SA)
         - `reverse` perturbation method
+        - Automatic $T_0$ tuning based on acceptance rate $\chi$
         - Geometric cooling schedule $T_{k+1}=\alpha T_k$
     - Genetic Algorithm (GA)
 

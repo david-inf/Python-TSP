@@ -331,8 +331,9 @@ plt.savefig(plots_dir + "rand-annealing-energy.pdf")
 # x0 = random_seq(30)
 # D1_circle[np.ix_(x0[[1,4,8]], x0[[1,4,8]])]
 
-res_gen = solve_tsp(tsp_fun, D2_rand, "genetic-alg",
-    options=dict(maxiter=30, method="exact", individuals=5, nson=2))
+res_gen = solve_tsp(tsp_fun, D1_circle, "genetic-alg",
+    options=dict(maxiter=300, individuals=200, nson=200, method="weighted",
+                 mutation_iters=100))
 
-diagnostic(C2_rand, res_gen)
+diagnostic(C1_circle, res_gen)
 
